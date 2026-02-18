@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 46.08 46.08">
+  <!-- Generator: Adobe Illustrator 30.1.0, SVG Export Plug-In . SVG Version: 2.1.1 Build 136)  -->
+  <defs>
+    <style>
+      .st0 {
+        stroke-width: .41px;
+      }
+
+      .st0, .st1, .st2, .st3, .st4, .st5 {
+        stroke: #000;
+      }
+
+      .st0, .st1, .st2, .st6 {
+        fill: #1a1a1a;
+      }
+
+      .st1, .st3 {
+        stroke-miterlimit: 4;
+        stroke-width: .25px;
+      }
+
+      .st2, .st4 {
+        stroke-miterlimit: 4;
+        stroke-width: .25px;
+      }
+
+      .st7 {
+        fill: #4d4d4d;
+      }
+
+      .st8 {
+        fill: url(#radial-gradient);
+        stroke: #4d4d4d;
+        stroke-width: .26px;
+      }
+
+      .st9 {
+        fill: #fff6d5;
+        stroke: #666;
+        stroke-width: .1px;
+      }
+
+      .st10, .st3, .st4 {
+        fill: #252525;
+      }
+
+      .st11 {
+        fill: #999;
+      }
+
+      .st5 {
+        fill: none;
+        stroke-miterlimit: 10;
+        stroke-width: 3px;
+      }
+    </style>
+    <radialGradient id="radial-gradient" cx="-966.73" cy="855.5" fx="-966.73" fy="855.5" r="11.98" gradientTransform="translate(-1113.59 1071.27) rotate(178.46) scale(1.22 1.19) skewX(.79)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ccc"/>
+      <stop offset="1" stop-color="#ccc" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <g id="Layer_1-2">
+    <g id="knob">
+      <circle class="st7" cx="23.05" cy="23.04" r="21.54"/>
+      <rect class="st10" x="17.43" y="-.4" width="7.5" height="40.37" transform="translate(14.64 48.02) rotate(-120)"/>
+      <rect class="st10" x="21.17" y="6.1" width="7.5" height="40.37" transform="translate(14.61 61.01) rotate(-120)"/>
+      <rect class="st10" x="-.88" y="19.29" width="40.37" height="7.5" transform="translate(-3.73 42.34) rotate(-90)"/>
+      <rect class="st10" x="6.61" y="19.29" width="40.37" height="7.5" transform="translate(3.75 49.84) rotate(-90)"/>
+      <rect class="st10" x="4.72" y="16.03" width="40.37" height="7.5" transform="translate(36.59 49.37) rotate(-150)"/>
+      <rect class="st10" x=".98" y="22.52" width="40.37" height="7.5" transform="translate(26.36 59.61) rotate(-150)"/>
+      <circle class="st5" cx="23.03" cy="23.02" r="21.54"/>
+      <circle class="st0" cx="22.96" cy="23.04" r="16.03"/>
+      <rect class="st3" x="18.38" y="3.6" width="6.21" height="33.43" transform="translate(14.63 49.08) rotate(-120)"/>
+      <rect class="st1" x="16.82" y="6.3" width="12.42" height="33.43" transform="translate(14.62 54.47) rotate(-120)"/>
+      <rect class="st2" x="6.33" y="16.8" width="33.43" height="12.42" transform="translate(.04 46.06) rotate(-90)"/>
+      <rect class="st4" x="7.87" y="17.21" width="33.43" height="6.21" transform="translate(35.72 50.19) rotate(-150)"/>
+      <rect class="st2" x="6.31" y="16.79" width="33.43" height="12.42" transform="translate(31.47 54.44) rotate(-150)"/>
+      <circle class="st6" cx="22.97" cy="23.05" r="16.03"/>
+      <circle class="st11" cx="23.05" cy="22.97" r="14.34"/>
+      <path id="path4610-7-2-1-0-9" class="st8" d="M8.59,23.37c-.31-7.83,5.91-14.35,13.89-14.58,7.99-.22,14.74,5.96,15.06,13.8.32,7.84-5.91,14.35-13.89,14.58s-14.7-5.93-15.06-13.75"/>
+      <path id="path4618-1-7" class="st9" d="M24.47,3.68c-.45.78-1.45,1.06-2.24.6s-1.05-1.44-.6-2.24c.45-.78,1.45-1.06,2.24-.6.76.44,1.03,1.4.63,2.18"/>
+    </g>
+  </g>
+</svg>

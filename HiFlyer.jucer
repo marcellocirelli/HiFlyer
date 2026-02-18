@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="eEGjI4" name="HiFlyer" projectType="audioplug" useAppConfig="0"
+              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" companyName="Marcello Cirelli"
+              pluginCharacteristicsValue="pluginWantsMidiIn" pluginManufacturerCode="Mcir">
+  <MAINGROUP id="XenjxO" name="HiFlyer">
+    <GROUP id="{19969779-1BD3-C54E-4303-D3D55F236696}" name="Source">
+      <GROUP id="{7CF065E4-7E73-5839-F81F-101101E435AA}" name="Assets">
+        <FILE id="SI8mhN" name="background.png" compile="0" resource="1" file="Source/assets/background.png"/>
+        <FILE id="uxkZbv" name="fader_center.svg" compile="0" resource="1"
+              file="Source/assets/fader_center.svg"/>
+        <FILE id="mGYkmM" name="fader_left.svg" compile="0" resource="1" file="Source/assets/fader_left.svg"/>
+        <FILE id="gL0PeX" name="fader_right.svg" compile="0" resource="1" file="Source/assets/fader_right.svg"/>
+        <FILE id="iJmCON" name="knob.svg" compile="0" resource="1" file="Source/assets/knob.svg"/>
+        <FILE id="gKTkRr" name="knob128x128.png" compile="0" resource="1" file="Source/assets/knob128x128.png"/>
+        <FILE id="vLzFl3" name="led_off.svg" compile="0" resource="1" file="Source/assets/led_off.svg"/>
+        <FILE id="OcMLcT" name="led_on.svg" compile="0" resource="1" file="Source/assets/led_on.svg"/>
+        <FILE id="ghL0mt" name="notchedKnob128x128.png" compile="0" resource="1"
+              file="Source/assets/notchedKnob128x128.png"/>
+        <FILE id="czq4sN" name="switch_left.svg" compile="0" resource="1" file="Source/assets/switch_left.svg"/>
+        <FILE id="A3H0Eg" name="switch_right.svg" compile="0" resource="1"
+              file="Source/assets/switch_right.svg"/>
+      </GROUP>
+      <GROUP id="{18D847B1-9099-C0CB-41B9-E7A2382C3AA3}" name="DSP">
+        <FILE id="noXAY9" name="Phaser.cpp" compile="1" resource="0" file="Source/DSP/Phaser.cpp"/>
+        <FILE id="seHcWd" name="Phaser.h" compile="0" resource="0" file="Source/DSP/Phaser.h"/>
+      </GROUP>
+      <GROUP id="{CB6F19B4-8070-79B3-C777-906D03FE013B}" name="UI">
+        <FILE id="pkfoqh" name="CustomLookAndFeel.cpp" compile="1" resource="0"
+              file="Source/UI/CustomLookAndFeel.cpp"/>
+        <FILE id="pZj6EM" name="CustomLookAndFeel.h" compile="0" resource="0"
+              file="Source/UI/CustomLookAndFeel.h"/>
+      </GROUP>
+      <FILE id="Ms7Zia" name="Parameters.cpp" compile="1" resource="0" file="Source/Parameters.cpp"/>
+      <FILE id="dVdiCj" name="Parameters.h" compile="0" resource="0" file="Source/Parameters.h"/>
+      <FILE id="aqidVi" name="PluginEditor.cpp" compile="1" resource="0"
+            file="Source/PluginEditor.cpp"/>
+      <FILE id="smkxJf" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+      <FILE id="UTcvAL" name="PluginProcessor.cpp" compile="1" resource="0"
+            file="Source/PluginProcessor.cpp"/>
+      <FILE id="hrMtNN" name="PluginProcessor.h" compile="0" resource="0"
+            file="Source/PluginProcessor.h"/>
+    </GROUP>
+  </MAINGROUP>
+  <MODULES>
+    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_plugin_client" showAllCode="1" useLocalCopy="0"
+            useGlobalPath="1"/>
+    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_processors_headless" showAllCode="1" useLocalCopy="0"
+            useGlobalPath="1"/>
+    <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_dsp" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+  </MODULES>
+  <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>
+  <EXPORTFORMATS>
+    <XCODE_MAC targetFolder="Builds/MacOSX">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="HiFlyer"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="HiFlyer"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_audio_basics" path="../../../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../../../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="../../../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors_headless" path="../../../../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../../../../JUCE/modules"/>
+        <MODULEPATH id="juce_core" path="../../../../JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../../../JUCE/modules"/>
+        <MODULEPATH id="juce_dsp" path="../../../../JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../../../../JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../../../JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../../../JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../../../../JUCE/modules"/>
+      </MODULEPATHS>
+    </XCODE_MAC>
+  </EXPORTFORMATS>
+</JUCERPROJECT>

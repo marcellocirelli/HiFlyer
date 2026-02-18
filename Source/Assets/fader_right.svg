@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25.21 24.07">
+  <defs>
+    <style>
+      .cls-1 {
+        stroke-linejoin: round;
+      }
+
+      .cls-1, .cls-2, .cls-3 {
+        stroke-width: .5px;
+      }
+
+      .cls-1, .cls-4 {
+        fill: #ccc;
+      }
+
+      .cls-1, .cls-5 {
+        stroke: #4d4d4d;
+      }
+
+      .cls-2 {
+        stroke: gray;
+      }
+
+      .cls-2, .cls-5 {
+        fill: none;
+      }
+
+      .cls-6 {
+        fill: gray;
+      }
+
+      .cls-7 {
+        fill: #666;
+      }
+
+      .cls-3 {
+        stroke: #000;
+      }
+
+      .cls-8 {
+        fill: #b3b3b3;
+      }
+
+      .cls-5 {
+        stroke-width: .25px;
+      }
+    </style>
+  </defs>
+  <g id="Layer_1-2" data-name="Layer 1">
+    <g id="fader_right">
+      <rect id="rect3199-1-6" class="cls-2" x="2.01" y="3.46" width="20.18" height="20.36" transform="translate(24.2 27.28) rotate(-180)"/>
+      <rect id="rect3199-9" class="cls-3" x="4.78" y=".25" width="20.18" height="20.36" transform="translate(29.74 20.86) rotate(-180)"/>
+      <rect id="rect3225-82" class="cls-1" x="6.38" y="1.85" width="16.79" height="16.61" transform="translate(29.55 20.31) rotate(-180)"/>
+      <path id="path3229-5" class="cls-7" d="M25.18,20.68h0l-20.67.04v-7.05S4.6,0,4.6,0L1.92,3.36v20.45s20.54,0,20.54,0l2.72-3.12h0Z"/>
+      <path id="path3233-5" class="cls-6" d="M4.51,13.64h0l-2.19.04-.04-6.56L0,9.93v7.1s1.74,0,1.74,0l2.77-3.39h0Z"/>
+      <rect id="rect3223-4" x="2.55" y="7.21" width="4.02" height="6.25" transform="translate(9.12 20.67) rotate(-180)"/>
+      <rect id="rect3227-91" class="cls-4" x="3.78" y="8.45" width="3.37" height="3.46" transform="translate(10.93 20.36) rotate(-180)"/>
+      <path id="path3235-2" class="cls-5" d="M4.6,20.69l-2.72,3.26"/>
+      <path id="path3233-7-5" class="cls-8" d="M4.51,13.57h0l-2.01.04L0,16.96h1.74s2.77-3.39,2.77-3.39h0Z"/>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 11.99 11.73">
+  <defs>
+    <style>
+      .cls-1, .cls-2, .cls-3 {
+        fill: none;
+      }
+
+      .cls-4 {
+        fill: url(#pattern7529-1);
+      }
+
+      .cls-2 {
+        stroke: #4d4d4d;
+        stroke-width: .99px;
+      }
+
+      .cls-2, .cls-3 {
+        stroke-linejoin: round;
+      }
+
+      .cls-3 {
+        stroke: #999;
+        stroke-width: .25px;
+      }
+
+      .cls-5 {
+        fill: #1a1a1a;
+      }
+    </style>
+    <pattern id="pattern7529-1" x="0" y="0" width="798.01" height="672.76" patternTransform="translate(1208 17326.21)" patternUnits="userSpaceOnUse" viewBox="0 0 798.01 672.76">
+      <g>
+        <rect class="cls-1" width="798.01" height="672.76"/>
+        <rect class="cls-1" x="0" width="798.01" height="672.76"/>
+      </g>
+    </pattern>
+  </defs>
+  <g id="Layer_1-2" data-name="Layer 1">
+    <g id="switch_left">
+      <rect id="rect5928-2" class="cls-5" x=".15" y=".6" width="11.7" height="10.54" transform="translate(.11 11.85) rotate(-89.81)"/>
+      <rect id="rect7486-3" class="cls-4" y=".81" width="11.99" height="10.11"/>
+      <path id="path7496-6" class="cls-2" d="M10.77.05l.09,10.82"/>
+      <path id="path7496-7-3" class="cls-3" d="M10.45.05l.09,10.82"/>
+      <path id="path7496-7-6-0" class="cls-3" d="M10.49,10.86l-9.92.03"/>
+    </g>
+  </g>
+</svg>
