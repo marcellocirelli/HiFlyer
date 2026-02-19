@@ -8,52 +8,66 @@
   ==============================================================================
 */
 
-#include "AllPassBank.h"
+#include "Phaser.h"
 
-void AllPassBank::prepare(const juce::dsp::ProcessSpec &spec)
+void Phaser::prepare(const juce::dsp::ProcessSpec &spec)
 {
     sampleRate = spec.sampleRate;
     reset();
 }
 
-void AllPassBank::reset()
+void Phaser::reset()
 {
     feedbackState = 0.0f;
     std::fill (std::begin (z1), std::end (z1), 0.0f);
 }
 
-void AllPassBank::setFeedback(float newFeedback) noexcept
+void Phaser::setFeedback(float newFeedback) noexcept
 {
     feedback = juce::jlimit (0.0f, 0.95f, newFeedback);
 }
 
-void AllPassBank::setSweepRange(float minFreqHz, float maxFreqHz) noexcept
+void Phaser::setSweepRange(float minFreqHz, float maxFreqHz) noexcept
 {
     sweepMinHz = juce::jlimit(20.0f, 20000.0f, minFreqHz);
     sweepMaxHz = juce::jlimit(sweepMinHz, 20000.0f, maxFreqHz);
 }
 
-float AllPassBank::coefficient(float freqHz) const noexcept
+void Phaser::setActiveStages (int stages) noexcept
+{
+    activeStages = juce::jlimit(1, numStages, stages);
+}
+
+void Phaser::setOutputTap(int stage) noexcept
+{
+    outputTap = juce::jlimit(1, numStages, stage);
+}
+
+float Phaser::coefficient(float freqHz) const noexcept
 {
     const float w = std::tan (juce::MathConstants<float>::pi * freqHz / static_cast<float> (sampleRate));
     return (w - 1.0f) / (w + 1.0f);
 }
 
-float AllPassBank::processSample(float input, float modulation) noexcept
+float Phaser::processSample(float input, float modulation) noexcept
 {
     const float mod = juce::jlimit(0.0f, 1.0f, modulation);
-    const float freq = sweepMaxHz * std::pow(sweepMinHz / sweepMaxHz, mod);
+    const float freq = sweepMinHz * std::pow(sweepMaxHz / sweepMinHz, mod);
     const float a = coefficient(freq);
     
     float x = input + feedbackState * feedback;
+    float tappedOutput = 0.0f;
     
     for (int i = 0; i < numStages; ++i)
     {
         const float y = a * x + z1[i];
         z1[i] = x - a * y;
         x = y;
+        
+        if (i == outputTap - 1)
+            tappedOutput = x;
     }
     
     feedbackState = x;
-    return x;
+    return tappedOutput;
 }

@@ -10,6 +10,9 @@
 
 #include <JuceHeader.h>
 #include "Parameters.h"
+#include "DSP/PhaserProcessor.h"
+#include "DSP/LFO.h"
+
 
 //==============================================================================
 /**
@@ -59,6 +62,11 @@ public:
 private:
     
     Parameters params;
+    
+    static constexpr int maxChannels = 2;
+    LFO lfo;
+    PhaserProcessor phaser[maxChannels];
+    
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (HiFlyerAudioProcessor)
 };

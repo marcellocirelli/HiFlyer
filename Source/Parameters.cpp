@@ -354,4 +354,5 @@ void Parameters::smoothen() noexcept
     modSpeed = modSpeedSmoother.getNextValue();
     modRamp = modRampSmoother.getNextValue();
     modDepth = modDepthSmoother.getNextValue();
+    freqShift = freqShiftSmoother.getNextValue();
 }
