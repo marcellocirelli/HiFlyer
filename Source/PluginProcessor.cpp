@@ -105,6 +105,11 @@ void HiFlyerAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
         phaser[ch].setAudioToModDepth (0.1f);
     }
     
+    for (int ch = 0; ch < maxChannels; ++ch)
+    {
+        topBoost[ch].prepare (spec);
+    }
+    
     params.prepareToPlay(sampleRate);
     params.reset();
 }
@@ -113,7 +118,13 @@ void HiFlyerAudioProcessor::releaseResources()
 {
     lfo.reset();
     for (int ch = 0; ch < maxChannels; ++ch)
+    {
         phaser[ch].reset();
+    }
+    for (int ch = 0; ch < maxChannels; ++ch)
+    {
+        topBoost[ch].reset();
+    }
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -171,7 +182,8 @@ void HiFlyerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
             auto* channelData = buffer.getWritePointer (ch);
 
             const float dry = channelData[sample];
-            const float wet = phaser[ch].processSample (dry, modulation);
+            const float boosted = topBoost[ch].processSample(dry, params.topBoost);
+            const float wet = phaser[ch].processSample (boosted, modulation);
             channelData[sample] = (wet + (dry - wet) * params.mix) * params.gain;
         }
     }

@@ -30,6 +30,8 @@
               file="Source/DSP/PhaserProcessor.cpp"/>
         <FILE id="QPTZnb" name="PhaserProcessor.h" compile="0" resource="0"
               file="Source/DSP/PhaserProcessor.h"/>
+        <FILE id="jtUneV" name="TopBoost.cpp" compile="1" resource="0" file="Source/DSP/TopBoost.cpp"/>
+        <FILE id="dsmBeE" name="TopBoost.h" compile="0" resource="0" file="Source/DSP/TopBoost.h"/>
       </GROUP>
       <GROUP id="{CB6F19B4-8070-79B3-C777-906D03FE013B}" name="UI">
         <FILE id="pkfoqh" name="CustomLookAndFeel.cpp" compile="1" resource="0"

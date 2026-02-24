@@ -12,6 +12,7 @@
 #include "Parameters.h"
 #include "DSP/PhaserProcessor.h"
 #include "DSP/LFO.h"
+#include "DSP/TopBoost.h"
 
 
 //==============================================================================
@@ -64,6 +65,7 @@ private:
     Parameters params;
     
     static constexpr int maxChannels = 2;
+    TopBoost topBoost[maxChannels];
     LFO lfo;
     PhaserProcessor phaser[maxChannels];
     
