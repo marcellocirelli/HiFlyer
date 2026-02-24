@@ -42,4 +42,5 @@ class Phaser
     float z1[numStages] {};
     
     int outputTap = numStages;
+    float smoothedCoeff = 0.0f;
 };
