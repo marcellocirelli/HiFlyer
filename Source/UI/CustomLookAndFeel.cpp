@@ -25,14 +25,11 @@ void CustomLookAndFeel::drawRotarySlider(juce::Graphics &g, int x, int y, int wi
 {
     const bool isNotched = slider.getProperties()["isNotched"];
     
-    
     if (!isNotched)
     {
         const int frameId = (int)std::floor(sliderPos * ((double)knobNumFrames - 1.0));
-        
         const int imgWidth = knobFilmstrip.getWidth();
         const int imgHeight = knobFilmstrip.getHeight() / knobNumFrames;
-        
         g.drawImage(knobFilmstrip,
                    x, y, width, height,
                    0, frameId * imgHeight,

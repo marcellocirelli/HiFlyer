@@ -68,8 +68,7 @@ double HiFlyerAudioProcessor::getTailLengthSeconds() const
 
 int HiFlyerAudioProcessor::getNumPrograms()
 {
-    return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
-                // so this should be at least 1, even if you're not really implementing programs.
+    return 1;
 }
 
 int HiFlyerAudioProcessor::getCurrentProgram()
@@ -124,15 +123,10 @@ bool HiFlyerAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) 
     juce::ignoreUnused (layouts);
     return true;
   #else
-    // This is the place where you check if the layout is supported.
-    // In this template code we only support mono or stereo.
-    // Some plugin hosts, such as certain GarageBand versions, will only
-    // load plugins that support stereo bus layouts.
     if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono()
      && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
         return false;
 
-    // This checks if the input layout matches the output layout
    #if ! JucePlugin_IsSynth
     if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
         return false;
@@ -168,7 +162,6 @@ void HiFlyerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
         lfo.setSpeed (params.modSpeed);
         lfo.setDepth (params.modDepth);
 
-//        const float modulation = juce::jlimit (0.0f, 1.0f, lfo.processSample() + (1.0f - params.freqShift));
         const float lfoValue = lfo.processSample();
         const float center = params.freqShift;
         const float modulation = juce::jlimit (0.0f, 1.0f, center + (lfoValue - params.modDepth * 0.5f));
@@ -187,7 +180,7 @@ void HiFlyerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
 //==============================================================================
 bool HiFlyerAudioProcessor::hasEditor() const
 {
-    return true; // (change this to false if you choose to not supply an editor)
+    return true;
 }
 
 juce::AudioProcessorEditor* HiFlyerAudioProcessor::createEditor()

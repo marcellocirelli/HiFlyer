@@ -20,6 +20,7 @@ void Phaser::reset()
 {
     feedbackState = 0.0f;
     std::fill (std::begin (z1), std::end (z1), 0.0f);
+    smoothedCoeff = 0.0f;
 }
 
 void Phaser::setFeedback(float newFeedback) noexcept
@@ -54,14 +55,15 @@ float Phaser::processSample(float input, float modulation) noexcept
     const float mod = juce::jlimit(0.0f, 1.0f, modulation);
     const float freq = sweepMinHz * std::pow(sweepMaxHz / sweepMinHz, mod);
     const float a = coefficient(freq);
+    smoothedCoeff += 0.001f * (a - smoothedCoeff);
     
     float x = input + feedbackState * feedback;
     float tappedOutput = 0.0f;
     
     for (int i = 0; i < numStages; ++i)
     {
-        const float y = a * x + z1[i];
-        z1[i] = x - a * y;
+        const float y = smoothedCoeff * x + z1[i];
+        z1[i] = x - smoothedCoeff * y;
         x = y;
         
         if (i == outputTap - 1)
