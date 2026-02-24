@@ -13,10 +13,10 @@
 juce::StringArray modulationTypes = {
     "Sine Slow",
     "Sine Fast",
-    "Sine Rise",
-    "Sine Fall",
-    "Saw Positive",
-    "Saw Negative"
+    "Sine Ramp Up",
+    "Sine Ramp Down",
+    "Ramp Up",
+    "Ramp Down"
 };
 
 juce::StringArray treatmentTypes = {
@@ -354,4 +354,5 @@ void Parameters::smoothen() noexcept
     modSpeed = modSpeedSmoother.getNextValue();
     modRamp = modRampSmoother.getNextValue();
     modDepth = modDepthSmoother.getNextValue();
+    freqShift = freqShiftSmoother.getNextValue();
 }
