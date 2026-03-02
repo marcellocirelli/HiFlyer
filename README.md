@@ -41,11 +41,11 @@ It serves as a portfolio example of modern C++ audio plugin development and obje
 
 ## Completed:
 
--   Basic UI\
--   Parameters\
--   Control Modulation function generator (Slow Sine, Fast Sine)\
--   Treatments (Vibrato, Phasing 1, Phasing 2, Waa, Waw, Meow)\
--   Top Boost\
+-   Basic UI
+-   Parameters
+-   Control Modulation function generator (Slow Sine, Fast Sine)
+-   Treatments (Vibrato, Phasing 1, Phasing 2, Waa, Waw, Meow)
+-   Top Boost
 
 ## TODO:
 
