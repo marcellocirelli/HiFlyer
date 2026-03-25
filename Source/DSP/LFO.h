@@ -29,7 +29,7 @@ class LFO
     void prepare (const juce::dsp::ProcessSpec& spec);
     void reset();
     
-    float processSample() noexcept;
+    float processSample(bool attackTrigger, bool decayTrigger, float rampAmount) noexcept;
     
     void setWaveform (Waveform newWaveform);
     void setSpeed (float speed) noexcept;
@@ -44,8 +44,15 @@ class LFO
     float speed = 0.0f;
     float depth = 1.0f;
     
-    double phase = 0.0;
+    double freePhase = 0.0;
+    double trigPhase = 0.0;
+    
+    float ramp = 0.0f;
+    bool rampActive = false;
     
     static constexpr float slowMaxHz =  1.14f;
     static constexpr float fastMaxHz = 6.25f;
+    
+    static constexpr float kMinRampMs = 5.0f;
+    static constexpr float kMaxRampMs = 5000.0f;
 };

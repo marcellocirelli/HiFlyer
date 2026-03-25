@@ -54,21 +54,21 @@ class Parameters
     void smoothen() noexcept;
     
     float gain = 0.0f;
-    float fallTime = 0.0f;
+    float fallTime = 100.0f;
     float riseTime = 0.0f;
     float topBoost = 0.0f;
     float subOctave = 0.0f;
     float ringMod = 0.0f;
     float fuzzLevel = 0.0f;
-    float mix = 1.0f;
+    float mix = 0.0f;
     float modSpeed = 0.0f;
     float modRamp = 0.0f;
     float modDepth = 0.0f;
     float freqShift = 0.0f;
-    bool triggerSens = 0;
+    bool triggerSens = 1;
     bool buzz = 0;
-    bool growl = 0;
-    int controlMod = 0;
+    int growl = 1;
+    int controlMod = 1;
     int treatment = 0;
     int lpTopBoost = 1;
     int lpSubOctave = 1;
@@ -117,7 +117,7 @@ class Parameters
     juce::LinearSmoothedValue<float> freqShiftSmoother;
     
     juce::AudioParameterBool* buzzParam;
-    juce::AudioParameterBool* growlParam;
+    juce::AudioParameterChoice* growlParam;
     juce::AudioParameterChoice* triggerSensParam;
     juce::AudioParameterChoice* controlModParam;
     juce::AudioParameterChoice* treatmentParam;

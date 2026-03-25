@@ -103,11 +103,12 @@ void HiFlyerAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
         phaser[ch].prepare (spec);
         phaser[ch].setFeedback (0.5f);
         phaser[ch].setAudioToModDepth (0.1f);
-    }
-    
-    for (int ch = 0; ch < maxChannels; ++ch)
-    {
         topBoost[ch].prepare (spec);
+        envelopeDetector[ch].prepare (spec);
+        subOct[ch].prepare(spec);
+        ringMod[ch].prepare(spec);
+        sustainFuzz[ch].prepare(spec);
+        growl[ch].prepare(spec);
     }
     
     params.prepareToPlay(sampleRate);
@@ -120,10 +121,12 @@ void HiFlyerAudioProcessor::releaseResources()
     for (int ch = 0; ch < maxChannels; ++ch)
     {
         phaser[ch].reset();
-    }
-    for (int ch = 0; ch < maxChannels; ++ch)
-    {
         topBoost[ch].reset();
+        envelopeDetector[ch].reset();
+        subOct[ch].reset();
+        ringMod[ch].reset();
+        sustainFuzz[ch].reset();
+        growl[ch].reset();
     }
 }
 
@@ -164,6 +167,8 @@ void HiFlyerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     for (int ch = 0; ch < totalNumInputChannels; ++ch)
         phaser[ch].setTreatment (treatment);
     
+    const bool soloMode = (params.triggerSens == 1);
+    
     const int numSamples = buffer.getNumSamples();
     
     for (int sample = 0; sample < numSamples; ++sample)
@@ -173,7 +178,10 @@ void HiFlyerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
         lfo.setSpeed (params.modSpeed);
         lfo.setDepth (params.modDepth);
 
-        const float lfoValue = lfo.processSample();
+        const float lfoValue = lfo.processSample(lfoAttackTrigger, lfoDecayTrigger, params.modRamp);
+        lfoAttackTrigger = false;
+        lfoDecayTrigger = false;
+        
         const float center = params.freqShift;
         const float modulation = juce::jlimit (0.0f, 1.0f, center + (lfoValue - params.modDepth * 0.5f));
 
@@ -182,8 +190,29 @@ void HiFlyerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
             auto* channelData = buffer.getWritePointer (ch);
 
             const float dry = channelData[sample];
+            
             const float boosted = topBoost[ch].processSample(dry, params.topBoost);
-            const float wet = phaser[ch].processSample (boosted, modulation);
+            const auto env = envelopeDetector[ch].processSample(dry, boosted, params.fallTime, params.riseTime, soloMode);
+            
+            if (ch == 0)
+            {
+                lfoAttackTrigger = env.attackTrigger;
+                lfoDecayTrigger = env.decayTrigger;
+            }
+            
+            const float sub = subOct[ch].processSample(dry, !params.buzz);
+            const float growlOut = growl[ch].processSample(sub, params.growl);
+            
+            const float ring = ringMod[ch].processSample(boosted, params.ringMod);
+            const float fuzz = sustainFuzz[ch].processSample(boosted, env.attackEnvelope, params.fuzzLevel);
+            const float shaped = (boosted * (1.0f - params.fuzzLevel) + sub * params.subOctave + ring + fuzz) * env.decayEnvelope;
+            
+            const bool isSineMode = (params.controlMod <= 3);
+            float chanModulation = modulation;
+            if (isSineMode && params.growl != 1)
+                chanModulation = juce::jlimit(0.0f, 1.0f, modulation + growlOut * params.modDepth);
+            
+            const float wet = phaser[ch].processSample (shaped, chanModulation);
             channelData[sample] = (wet + (dry - wet) * params.mix) * params.gain;
         }
     }
