@@ -6,7 +6,7 @@
   <MAINGROUP id="XenjxO" name="HiFlyer">
     <GROUP id="{19969779-1BD3-C54E-4303-D3D55F236696}" name="Source">
       <GROUP id="{7CF065E4-7E73-5839-F81F-101101E435AA}" name="Assets">
-        <FILE id="SI8mhN" name="background.png" compile="0" resource="1" file="Source/assets/background.png"/>
+        <FILE id="ZH09nA" name="background.png" compile="0" resource="1" file="Source/Assets/background.png"/>
         <FILE id="uxkZbv" name="fader_center.svg" compile="0" resource="1"
               file="Source/assets/fader_center.svg"/>
         <FILE id="mGYkmM" name="fader_left.svg" compile="0" resource="1" file="Source/assets/fader_left.svg"/>
@@ -22,6 +22,12 @@
               file="Source/assets/switch_right.svg"/>
       </GROUP>
       <GROUP id="{18D847B1-9099-C0CB-41B9-E7A2382C3AA3}" name="DSP">
+        <FILE id="xlspoL" name="EnvelopeDetector.cpp" compile="1" resource="0"
+              file="Source/DSP/EnvelopeDetector.cpp"/>
+        <FILE id="EsEMpv" name="EnvelopeDetector.h" compile="0" resource="0"
+              file="Source/DSP/EnvelopeDetector.h"/>
+        <FILE id="LwiN9I" name="Growl.cpp" compile="1" resource="0" file="Source/DSP/Growl.cpp"/>
+        <FILE id="S5hBOe" name="Growl.h" compile="0" resource="0" file="Source/DSP/Growl.h"/>
         <FILE id="bRsrbB" name="LFO.cpp" compile="1" resource="0" file="Source/DSP/LFO.cpp"/>
         <FILE id="q4byMR" name="LFO.h" compile="0" resource="0" file="Source/DSP/LFO.h"/>
         <FILE id="djeIfL" name="Phaser.cpp" compile="1" resource="0" file="Source/DSP/Phaser.cpp"/>
@@ -30,6 +36,12 @@
               file="Source/DSP/PhaserProcessor.cpp"/>
         <FILE id="QPTZnb" name="PhaserProcessor.h" compile="0" resource="0"
               file="Source/DSP/PhaserProcessor.h"/>
+        <FILE id="sRcmmq" name="RingMod.cpp" compile="1" resource="0" file="Source/DSP/RingMod.cpp"/>
+        <FILE id="wfkJIq" name="RingMod.h" compile="0" resource="0" file="Source/DSP/RingMod.h"/>
+        <FILE id="Pc8QPV" name="SubOctave.cpp" compile="1" resource="0" file="Source/DSP/SubOctave.cpp"/>
+        <FILE id="G4vcF1" name="SubOctave.h" compile="0" resource="0" file="Source/DSP/SubOctave.h"/>
+        <FILE id="U5UjU1" name="SustainFuzz.cpp" compile="1" resource="0" file="Source/DSP/SustainFuzz.cpp"/>
+        <FILE id="LLVaAJ" name="SustainFuzz.h" compile="0" resource="0" file="Source/DSP/SustainFuzz.h"/>
         <FILE id="jtUneV" name="TopBoost.cpp" compile="1" resource="0" file="Source/DSP/TopBoost.cpp"/>
         <FILE id="dsmBeE" name="TopBoost.h" compile="0" resource="0" file="Source/DSP/TopBoost.h"/>
       </GROUP>
@@ -70,7 +82,8 @@
   </MODULES>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>
   <EXPORTFORMATS>
-    <XCODE_MAC targetFolder="Builds/MacOSX">
+    <XCODE_MAC targetFolder="Builds/MacOSX" appSandbox="1" appSandboxOptions="com.apple.security.device.microphone"
+               appSandboxInheritance="1">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" targetName="HiFlyer"/>
         <CONFIGURATION isDebug="0" name="Release" targetName="HiFlyer"/>

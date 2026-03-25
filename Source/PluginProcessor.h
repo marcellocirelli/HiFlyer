@@ -13,6 +13,11 @@
 #include "DSP/PhaserProcessor.h"
 #include "DSP/LFO.h"
 #include "DSP/TopBoost.h"
+#include "DSP/EnvelopeDetector.h"
+#include "DSP/SubOctave.h"
+#include "DSP/RingMod.h"
+#include "DSP/SustainFuzz.h"
+#include "DSP/Growl.h"
 
 
 //==============================================================================
@@ -68,6 +73,15 @@ private:
     TopBoost topBoost[maxChannels];
     LFO lfo;
     PhaserProcessor phaser[maxChannels];
+    EnvelopeDetector envelopeDetector[maxChannels];
+    SubOctave subOct[maxChannels];
+    RingMod ringMod[maxChannels];
+    SustainFuzz sustainFuzz[maxChannels];
+    Growl growl[maxChannels];
+    
+    int dbgCounter = 0;
+    bool lfoAttackTrigger = false;
+    bool lfoDecayTrigger = false;
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (HiFlyerAudioProcessor)

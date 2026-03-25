@@ -39,6 +39,12 @@ juce::StringArray triggerSensPos = {
     "Solo"
 };
 
+juce::StringArray growlPos = {
+    "2",
+    "Off",
+    "4"
+};
+
 template<typename T>
 static void castParameter(juce::AudioProcessorValueTreeState& apvts, const juce::ParameterID& id, T& destination)
 {
@@ -100,7 +106,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout Parameters::createParameterL
         fallTimeParamID,
         "Fall Time",
         juce::NormalisableRange<float> { 0.0f, 100.0f},
-        0.0f,
+        100.0f,
         juce::AudioParameterFloatAttributes().withStringFromValueFunction(stringFromPercent)));
     
     layout.add(std::make_unique<juce::AudioParameterFloat>(
@@ -114,7 +120,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout Parameters::createParameterL
         controlModParamID,
         "Control Modulation",
         modulationTypes,
-        2));
+        1));
     
     layout.add(std::make_unique<juce::AudioParameterChoice>(
         treatmentParamID,
@@ -154,7 +160,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout Parameters::createParameterL
         mixParamID,
         "Bypass Mix",
         juce::NormalisableRange<float> { 0.0f, 100.0f, 1.0f },
-        100.0f,
+        0.0f,
         juce::AudioParameterFloatAttributes().withStringFromValueFunction(stringFromPercent)));
     
     layout.add(std::make_unique<juce::AudioParameterFloat>(
@@ -237,17 +243,18 @@ juce::AudioProcessorValueTreeState::ParameterLayout Parameters::createParameterL
         triggerSensParamID,
         "Trigger Sensitivity",
         triggerSensPos,
-        false));
+        true));
     
     layout.add(std::make_unique<juce::AudioParameterBool>(
         buzzParamID,
         "Buzz",
         false));
     
-    layout.add(std::make_unique<juce::AudioParameterBool>(
+    layout.add(std::make_unique<juce::AudioParameterChoice>(
         growlParamID,
         "Growl",
-        false));
+        growlPos,
+        1));
     
     return layout;
 }
@@ -277,7 +284,7 @@ void Parameters::update() noexcept
     rpFreqShift = rpFreqShiftParam->getIndex();
     triggerSens = triggerSensParam->getIndex();
     buzz = buzzParam->get();
-    growl = growlParam->get();
+    growl = growlParam->getIndex();
     controlMod = controlModParam->getIndex();
     treatment = treatmentParam->getIndex();
 }
