@@ -43,18 +43,18 @@ It serves as a portfolio example of modern C++ audio plugin development and obje
 
 -   Basic UI
 -   Parameters
--   Control Modulation function generator (Slow Sine, Fast Sine)
+-   Control Modulation function generator
 -   Treatments (Vibrato, Phasing 1, Phasing 2, Waa, Waw, Meow)
 -   Top Boost
-
-## TODO:
-
 -   Attack/Decay detector
 -   Sub Octave + Buzz
 -   Ramp Oscillator
 -   Growl Modulation
 -   Fuzz
 -   Ring Modulator
+
+## TODO:
+
 -   UI overhaul (OpenGL?)
 -   Cleanup/refactoring
 
