@@ -8,12 +8,12 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
-#include "Parameters.h"
 
 //==============================================================================
 HiFlyerAudioProcessorEditor::HiFlyerAudioProcessorEditor (HiFlyerAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
+    
     backgroundPNG = juce::Drawable::createFromImageData (BinaryData::background_png, BinaryData::background_pngSize);
     
     setLookAndFeel (&customLNF);
