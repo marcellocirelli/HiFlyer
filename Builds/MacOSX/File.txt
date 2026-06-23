@@ -1,0 +1,159 @@
+float SubOctave::msToCoeff (double sr, float ms) noexcept
+{
+    ms = std::max (0.001f, ms);
+    return 1.0f - std::exp (-1.0f / (static_cast<float> (sr) * ms * 0.001f));
+}
+
+int SubOctave::msToSamples (double sr, float ms) noexcept
+{
+    return std::max (1, static_cast<int> (std::round (sr * ms * 0.001)));
+}
+
+void SubOctave::prepare (const juce::dsp::ProcessSpec& spec)
+{
+    sampleRate = spec.sampleRate > 0.0 ? spec.sampleRate : 44100.0;
+
+    highpassCoeff    = msToCoeff (sampleRate, kInputHighpassMs);
+    lowpassCoeff     = msToCoeff (sampleRate, kTrackingLowpassMs);
+    envCoeff         = msToCoeff (sampleRate, kEnvelopeMs);
+    carrierSlewCoeff = msToCoeff (sampleRate, kCarrierSlewMs);
+    audibleSlewCoeff = msToCoeff (sampleRate, kAudibleSlewMs);
+    buzzCoeff        = msToCoeff (sampleRate, kBuzzLowpassMs);
+
+    blankingSamples = msToSamples (sampleRate, kEdgeBlankingMs);
+    unlockAfterSamples = msToSamples (sampleRate, kUnlockAfterMs);
+
+    minPeriodSamples = std::max (1, static_cast<int> (sampleRate / kMaxInputHz));
+    maxPeriodSamples = std::max (1, static_cast<int> (sampleRate / kMinInputHz));
+
+    reset();
+}
+
+void SubOctave::reset()
+{
+    highpassState = 0.0f;
+    lowpassState = 0.0f;
+    envelope = 0.0f;
+
+    schmittHigh = false;
+    samplesSinceRising = maxPeriodSamples;
+    samplesSinceAnyAcceptedPeriod = unlockAfterSamples + 1;
+
+    stableInputPeriod = 0.0f;
+    locked = false;
+
+    subPhase = 0.0f;
+    carrierOutput = 0.0f;
+    audibleGate = 0.0f;
+    audibleOutput = 0.0f;
+    buzzFilter = 0.0f;
+}
+
+bool SubOctave::isPlausiblePeriod (int period) const noexcept
+{
+    return period >= minPeriodSamples && period <= maxPeriodSamples;
+}
+
+bool SubOctave::acceptMeasuredPeriod (int period) noexcept
+{
+    if (! isPlausiblePeriod (period))
+        return false;
+
+    if (locked && stableInputPeriod > 0.0f)
+    {
+        const float ratio = static_cast<float> (period) / stableInputPeriod;
+        const float boundedRatio = ratio < 1.0f ? 1.0f / std::max (ratio, 0.001f) : ratio;
+
+        // Reject sudden octave/harmonic jumps, but unlock logic below lets a new note
+        // establish itself after the previous held period has gone stale.
+        if (boundedRatio > kMaxPeriodJumpRatio && samplesSinceAnyAcceptedPeriod < unlockAfterSamples / 4)
+            return false;
+    }
+
+    if (! locked || stableInputPeriod <= 0.0f)
+        stableInputPeriod = static_cast<float> (period);
+    else
+        stableInputPeriod += kPeriodSlew * (static_cast<float> (period) - stableInputPeriod);
+
+    stableInputPeriod = juce::jlimit (static_cast<float> (minPeriodSamples),
+                                      static_cast<float> (maxPeriodSamples),
+                                      stableInputPeriod);
+
+    locked = true;
+    samplesSinceAnyAcceptedPeriod = 0;
+    return true;
+}
+
+float SubOctave::processSample (float input, bool buzz) noexcept
+{
+    // Gentle conditioning for the detector only.
+    highpassState += highpassCoeff * (input - highpassState);
+    const float highpassed = input - highpassState;
+
+    lowpassState += lowpassCoeff * (highpassed - lowpassState);
+    const float tracked = lowpassState;
+
+    const float rectified = std::abs (tracked);
+    envelope += envCoeff * (rectified - envelope);
+
+    ++samplesSinceRising;
+    ++samplesSinceAnyAcceptedPeriod;
+
+    const float threshold = juce::jlimit (kThresholdFloor, kThresholdCeiling,
+                                          envelope * kThresholdRatio);
+    const float lowThreshold = threshold * kHysteresisRatio;
+
+    // Rising-edge Schmitt detector. Use one polarity only so we measure full
+    // input cycles, not half cycles. This avoids accidental divide errors.
+    if (! schmittHigh)
+    {
+        if (tracked >= threshold && samplesSinceRising >= blankingSamples)
+        {
+            const int measuredPeriod = samplesSinceRising;
+            samplesSinceRising = 0;
+            schmittHigh = true;
+
+            acceptMeasuredPeriod (measuredPeriod);
+        }
+    }
+    else if (tracked <= lowThreshold)
+    {
+        schmittHigh = false;
+    }
+
+    if (samplesSinceAnyAcceptedPeriod > unlockAfterSamples)
+        locked = false;
+
+    const bool active = locked && stableInputPeriod > 0.0f;
+
+    if (active)
+    {
+        const float subPeriod = stableInputPeriod * 2.0f;
+        subPhase += 1.0f / std::max (subPeriod, 1.0f);
+
+        if (subPhase >= 1.0f)
+            subPhase -= std::floor (subPhase);
+    }
+
+    const float rawCarrier = active ? (subPhase < 0.5f ? 1.0f : -1.0f) : 0.0f;
+    carrierOutput += carrierSlewCoeff * (rawCarrier - carrierOutput);
+
+    const float gateTarget = active ? 1.0f : 0.0f;
+    const float gateCoeff = gateTarget > audibleGate
+                          ? msToCoeff (sampleRate, kAudibleAttackMs)
+                          : msToCoeff (sampleRate, kAudibleReleaseMs);
+    audibleGate += gateCoeff * (gateTarget - audibleGate);
+
+    const float targetAudible = juce::jlimit (-kAudibleLimit, kAudibleLimit,
+                                              carrierOutput * envelope * kAudibleMakeupGain * audibleGate);
+    audibleOutput += audibleSlewCoeff * (targetAudible - audibleOutput);
+
+    if (buzz)
+    {
+        buzzFilter += buzzCoeff * (audibleOutput - buzzFilter);
+        return buzzFilter;
+    }
+
+    buzzFilter = audibleOutput;
+    return audibleOutput;
+}

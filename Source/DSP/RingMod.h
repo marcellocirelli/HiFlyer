@@ -13,12 +13,13 @@
 
 class RingMod
 {
-    public:
+public:
     void prepare (const juce::dsp::ProcessSpec& spec);
     void reset();
-    
-    float processSample(float input, float amount) noexcept;
-    
-    private:
-    static constexpr float kSoftness = 0.0001f;
+
+    float processSample (float input, float amount) noexcept;
+
+private:
+    // Differential pair knee width — thermal voltage scaled to audio levels
+    static constexpr float kSoftness = 0.01f;
 };

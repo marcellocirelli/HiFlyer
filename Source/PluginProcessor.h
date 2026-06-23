@@ -19,7 +19,6 @@
 #include "DSP/SustainFuzz.h"
 #include "DSP/Growl.h"
 
-
 //==============================================================================
 /**
 */
@@ -63,10 +62,9 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
     
-    juce::AudioProcessorValueTreeState apvts { *this, nullptr, "Parameters", Parameters::createParameterLayout()};
+    juce::AudioProcessorValueTreeState apvts { *this, nullptr, "Parameters", Parameters::createParameterLayout() };
 
 private:
-    
     Parameters params;
     
     static constexpr int maxChannels = 2;
@@ -78,10 +76,6 @@ private:
     RingMod ringMod[maxChannels];
     SustainFuzz sustainFuzz[maxChannels];
     Growl growl[maxChannels];
-    
-    int dbgCounter = 0;
-    bool lfoAttackTrigger = false;
-    bool lfoDecayTrigger = false;
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (HiFlyerAudioProcessor)

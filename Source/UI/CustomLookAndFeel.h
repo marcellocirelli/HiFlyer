@@ -13,7 +13,7 @@
 
 class CustomLookAndFeel : public juce::LookAndFeel_V4
 {
-    public:
+public:
     CustomLookAndFeel();
     
     void drawRotarySlider (juce::Graphics& g, int x, int y, int width, int height,
@@ -24,9 +24,10 @@ class CustomLookAndFeel : public juce::LookAndFeel_V4
                            float sliderPos, float minSliderPos, float maxSliderPos, juce::Slider::SliderStyle,
                            juce::Slider& slider) override;
     
-    private:
+private:
+    static constexpr int knobNumFrames = 101;
+
     juce::Image knobFilmstrip;
-    int knobNumFrames = 101;
     juce::Image notchedKnobFilmstrip;
     std::unique_ptr<juce::Drawable> faderLeftSVG;
     std::unique_ptr<juce::Drawable> faderRightSVG;
@@ -34,5 +35,5 @@ class CustomLookAndFeel : public juce::LookAndFeel_V4
     std::unique_ptr<juce::Drawable> switchLeftSVG;
     std::unique_ptr<juce::Drawable> switchRightSVG;
     
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(CustomLookAndFeel)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CustomLookAndFeel)
 };

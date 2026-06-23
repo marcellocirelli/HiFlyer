@@ -13,16 +13,15 @@
 
 class TopBoost
 {
-    public:
+public:
     TopBoost() = default;
     
-    void prepare(const juce::dsp::ProcessSpec& spec);
+    void prepare (const juce::dsp::ProcessSpec& spec);
     void reset();
     
+    float processSample (float input, float boostAmount) noexcept;
     
-    float processSample(float input, float boostAmount) noexcept;
-    
-    private:
+private:
     void computeCoefficients (double sampleRate);
     
     juce::dsp::IIR::Filter<float> inputFilter;

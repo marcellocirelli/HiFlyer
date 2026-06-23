@@ -9,136 +9,167 @@
 #include "EnvelopeDetector.h"
 #include <cmath>
 
-static float msToCoeff (double sampleRate, float ms) noexcept
+float EnvelopeDetector::msToCoeff (double sr, float ms) noexcept
 {
-    return 1.0f - std::exp (-1.0f / (static_cast<float> (sampleRate) * ms * 0.001f));
+    ms = std::max (0.001f, ms);
+    return 1.0f - std::exp (-1.0f / (static_cast<float> (sr) * ms * 0.001f));
+}
+
+int EnvelopeDetector::msToSamples (double sr, float ms) noexcept
+{
+    return std::max (1, static_cast<int> (std::round (sr * ms * 0.001)));
+}
+
+float EnvelopeDetector::mapTimeControl (float normalised) noexcept
+{
+    const float x = juce::jlimit (0.0f, 1.0f, normalised);
+    const float curved = x * x;
+    return kMinTimeMs + curved * (kMaxTimeMs - kMinTimeMs);
+}
+
+float EnvelopeDetector::onePoleAttackRelease (float input, float& state,
+                                               float attackCoeff,
+                                               float releaseCoeff) noexcept
+{
+    const float coeff = (input > state) ? attackCoeff : releaseCoeff;
+    state += coeff * (input - state);
+    return state;
 }
 
 void EnvelopeDetector::prepare (const juce::dsp::ProcessSpec& spec)
 {
-    sampleRate = spec.sampleRate;
+    sampleRate = spec.sampleRate > 0.0 ? spec.sampleRate : 44100.0;
 
-    fastEnv.prepare (spec);
-    fastEnv.setAttackTime (kFastAttackMs);
-    fastEnv.setReleaseTime (kFastReleaseMs);
+    levelAttackCoeff = msToCoeff (sampleRate, kLevelAttackMs);
+    levelReleaseCoeff = msToCoeff (sampleRate, kLevelReleaseMs);
+    fastAttackCoeff = msToCoeff (sampleRate, kFastAttackMs);
+    fastReleaseCoeff = msToCoeff (sampleRate, kFastReleaseMs);
+    slowAttackCoeff = msToCoeff (sampleRate, kSlowAttackMs);
+    slowReleaseCoeff = msToCoeff (sampleRate, kSlowReleaseMs);
 
-    slowEnv.prepare (spec);
-    slowEnv.setAttackTime (kSlowAttackMs);
-    slowEnv.setReleaseTime (kSlowReleaseMs);
-
-    holdoffSamples = static_cast<int> (sampleRate * kSoloHoldoffMs * 0.001);
+    soloHoldoffSamples = msToSamples (sampleRate, kSoloHoldoffMs);
+    strumHoldoffSamples = msToSamples (sampleRate, kStrumHoldoffMs);
+    closeConfirmSamples = msToSamples (sampleRate, kCloseConfirmMs);
 
     reset();
 }
 
 void EnvelopeDetector::reset()
 {
-    fastEnv.reset();
-    slowEnv.reset();
-    gateState      = false;
+    levelEnv = 0.0f;
+    fastEnv = 0.0f;
+    slowEnv = 0.0f;
+    previousLevel = 0.0f;
+
+    // Safe defaults: with no detected event, the audio path is not muted.
+    riseEnv = 1.0f;
+    fallEnv = 1.0f;
+
+    gateState = false;
     holdoffCounter = 0;
-    decayEnv       = 0.0f;
-    peakHold       = 0.0f;
-    attackEnv      = 0.0f;
+    closeCounter = 0;
 }
 
-EnvelopeOutput EnvelopeDetector::processSample (float rawInput, float boostedInput,
-                                                 float fallTime, float riseTime,
+EnvelopeOutput EnvelopeDetector::processSample (float rawInput,
+                                                 float boostedInput,
+                                                 float fallTime,
+                                                 float riseTime,
                                                  bool soloMode) noexcept
 {
+    juce::ignoreUnused (boostedInput);
+
     EnvelopeOutput out;
 
-    // Transient Detection
-
     const float rectified = std::abs (rawInput);
-    const float fast = fastEnv.processSample (0, rectified);
-    const float slow = slowEnv.processSample (0, rectified);
-    const float ratio = (slow > 1e-6f) ? (fast / slow) : 0.0f;
-    const float threshold = soloMode ? kSoloAttackRatio : kStrumAttackRatio;
+
+    const float level = onePoleAttackRelease (rectified, levelEnv, levelAttackCoeff, levelReleaseCoeff);
+    const float fast  = onePoleAttackRelease (rectified, fastEnv, fastAttackCoeff, fastReleaseCoeff);
+    const float slow  = onePoleAttackRelease (rectified, slowEnv, slowAttackCoeff, slowReleaseCoeff);
+
+    const float transientAmount = fast - slow;
+    const float positiveSlope = std::max (0.0f, level - previousLevel);
+    previousLevel = level;
 
     if (holdoffCounter > 0)
         --holdoffCounter;
 
-    // --- Note end: signal died ---
-    if (gateState && fast < kNoiseFloor)
-    {
-        gateState        = false;
-        out.decayTrigger = true;
+    const float transientThreshold = soloMode ? kSoloTransient : kStrumTransient;
+    const float slopeThreshold = soloMode ? kSoloSlope : kStrumSlope;
+    const int holdoffSamples = soloMode ? soloHoldoffSamples : strumHoldoffSamples;
 
-        // Reset fuzz envelope
-        peakHold  = 0.0f;
-        attackEnv = 0.0f;
-    }
+    const bool aboveNoise = level > kNoiseFloor;
+    const bool enoughLevel = level > kOpenThreshold;
+    const bool transientDetected = aboveNoise
+                                && enoughLevel
+                                && transientAmount > transientThreshold
+                                && positiveSlope > slopeThreshold
+                                && holdoffCounter == 0;
 
-    // --- Note start: transient detected ---
-    if (ratio > threshold)
+    if (gateState)
     {
-        if (soloMode)
+        if (level < kCloseThreshold)
         {
-            // Solo: retrigger any time, holdoff prevents chatter
-            if (holdoffCounter == 0)
+            if (++closeCounter >= closeConfirmSamples)
             {
-                if (gateState)
-                {
-                    // Previous note ended — reset fuzz envelope
-                    out.decayTrigger = true;
-                    peakHold  = 0.0f;
-                    attackEnv = 0.0f;
-                }
-
-                gateState         = true;
-                out.attackTrigger = true;
-                holdoffCounter    = holdoffSamples;
-
-                // Decay envelope: jump to 1.0 on new note
-                decayEnv = 1.0f;
+                gateState = false;
+                out.decayTrigger = true;
+                closeCounter = 0;
             }
         }
         else
         {
-            // Strum: gate must be closed first
-            if (! gateState)
-            {
-                gateState         = true;
-                out.attackTrigger = true;
-
-                decayEnv = 1.0f;
-            }
+            closeCounter = 0;
         }
+    }
+
+    if (transientDetected)
+    {
+        if (gateState)
+            out.decayTrigger = true;
+
+        gateState = true;
+        out.attackTrigger = true;
+        holdoffCounter = holdoffSamples;
+        closeCounter = 0;
+
+        // Start a new event. Fall begins at full level and decays. Rise either
+        // bypasses to 1.0 at minimum, or swells from silence toward full fuzz.
+        fallEnv = 1.0f;
+        riseEnv = (riseTime <= kRiseBypassEpsilon) ? 1.0f : 0.0f;
     }
 
     out.gate = gateState;
 
-    // Decay Envelope
-
-    const float decayMs    = kMinTimeMs * std::pow (kMaxTimeMs / kMinTimeMs, fallTime);
-    const float decayCoeff = msToCoeff (sampleRate, decayMs);
-    decayEnv -= decayCoeff * decayEnv;
-
-    out.decayEnvelope = decayEnv;
-
-    // Attack Envelope
-    if (gateState)
+    if (fallTime >= 0.999f)
     {
-        // Peak detector (C19): track largest excursion of boosted signal
-        const float boostedLevel = std::abs (boostedInput);
-        if (boostedLevel > peakHold)
-            peakHold = boostedLevel;
-
-        // Attack envelope (C20): rise toward peak at user rate
-        if (riseTime < 0.001f)
-        {
-            attackEnv = peakHold;
-        }
-        else
-        {
-            const float riseMs    = kMinTimeMs * std::pow (kMaxTimeMs / kMinTimeMs, riseTime);
-            const float riseCoeff = msToCoeff (sampleRate, riseMs);
-            attackEnv += riseCoeff * (peakHold - attackEnv);
-        }
+        fallEnv = 1.0f; // max fall = no decay / off
+    }
+    else
+    {
+        const float fallMs = mapTimeControl (fallTime);
+        const float fallStep = 1.0f / static_cast<float> (msToSamples (sampleRate, fallMs));
+        fallEnv = std::max (0.0f, fallEnv - fallStep);
     }
 
-    out.attackEnvelope = attackEnv;
+    out.decayEnvelope = juce::jlimit (0.0f, 1.0f, fallEnv);
 
+    if (riseTime <= kRiseBypassEpsilon)
+    {
+        riseEnv = 1.0f;
+    }
+    else if (gateState)
+    {
+        const float riseMs = mapTimeControl (riseTime);
+        const float riseStep = 1.0f / static_cast<float> (msToSamples (sampleRate, riseMs));
+        riseEnv = std::min (1.0f, riseEnv + riseStep);
+    }
+    else
+    {
+        // The next attack event resets this to zero. Between events, leave it at
+        // full level so the fuzz path is normal when rise is not actively swelling.
+        riseEnv = 1.0f;
+    }
+
+    out.attackEnvelope = juce::jlimit (0.0f, 1.0f, riseEnv);
     return out;
 }
