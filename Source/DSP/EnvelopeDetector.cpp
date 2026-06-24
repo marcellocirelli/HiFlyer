@@ -3,6 +3,10 @@
 
     EnvelopeDetector.cpp
 
+    This module detects attack and decay transients for various uses across the plugin.
+    Attack detection is used for fall time, sustain fuzz rise time, and waveform triggering in the phaser
+    Decay detection is used for resetting
+ 
   ==============================================================================
 */
 
@@ -61,7 +65,7 @@ void EnvelopeDetector::reset()
     slowEnv = 0.0f;
     previousLevel = 0.0f;
 
-    // Safe defaults: with no detected event, the audio path is not muted.
+    // Safe defaults: with no detected event, the audio path is not muted
     riseEnv = 1.0f;
     fallEnv = 1.0f;
 

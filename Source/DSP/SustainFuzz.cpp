@@ -2,6 +2,10 @@
   ============================================================================
 
     SustainFuzz.cpp
+ 
+    This module emulates the hardware sound of the fuzz module. Resistor and
+    capacitor values were converted to coefficients and frequency levels. Based
+    on the hardware's single BC169C silicon transistor fuzz.
 
   ============================================================================
 */
@@ -33,26 +37,15 @@ void SustainFuzz::reset()
 
 float SustainFuzz::processSample (float input, float attackEnv) noexcept
 {
-    //--------------------------------------------------------------------------
-    // Q6 common-base:
-    // attackEnvelope (A12 output) sets the collector voltage ceiling.
-    // Signal clips symmetrically against ±ceiling.
-    // Low ceiling = hard clip at low amplitude.
-    // High ceiling = proportional output at higher amplitude.
-    //--------------------------------------------------------------------------
     const float ceiling = std::max (attackEnv, kCeilingFloor);
     const float amplified = input * kGain;
     const float clipped = std::clamp (amplified, -ceiling, ceiling);
 
-    //--------------------------------------------------------------------------
     // Output HPF: C22[1µF] × R68[470Ω] — AC coupling from base
-    //--------------------------------------------------------------------------
     const float hpfOut = hpfCoeff * (hpfState + clipped);
     hpfState = hpfOut - clipped;
 
-    //--------------------------------------------------------------------------
     // Output LPF: C21[22kp] × R64[22k] ≈ 329Hz
-    //--------------------------------------------------------------------------
     lpfState += lpfCoeff * (hpfOut - lpfState);
 
     return lpfState;

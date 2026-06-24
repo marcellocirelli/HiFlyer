@@ -4,6 +4,9 @@
     Phaser.cpp
     Created: 17 Feb 2026 11:41:30pm
     Author:  Marcello Cirelli
+ 
+    This module is the initial section of the phaser module. Please view PhaserProcessor.cpp
+    for more information
 
   ==============================================================================
 */

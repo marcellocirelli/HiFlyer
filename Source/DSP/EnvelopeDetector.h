@@ -18,7 +18,6 @@ struct EnvelopeOutput
 
     // Normalised musical envelopes.
     // riseEnvelope: 1.0 at minimum rise time; otherwise 0 -> 1 after each attack.
-    // fallEnvelope: triggered decay, intended to be applied globally before effects.
     float attackEnvelope = 1.0f;
     float decayEnvelope  = 1.0f;
 };
@@ -59,7 +58,7 @@ private:
     static constexpr float kCloseConfirmMs   = 18.0f;
 
     // Below this control value, rise is treated as completely bypassed so the fuzz
-    // behaves exactly like a normal always-on fuzz pedal.
+    // behaves exactly like a normal always-on fuzz pedal
     static constexpr float kRiseBypassEpsilon = 0.0015f;
 
     static float msToCoeff (double sr, float ms) noexcept;
@@ -68,7 +67,7 @@ private:
 
     float onePoleAttackRelease (float input, float& state, float attackCoeff, float releaseCoeff) noexcept;
 
-    double sampleRate = 44100.0;
+    double sampleRate = 0.0;
 
     float levelEnv = 0.0f;
     float fastEnv = 0.0f;

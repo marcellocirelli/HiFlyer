@@ -3,6 +3,12 @@
 
     SubOctave.cpp
 
+    This replicates the sub octave module. This module directly replicates the behavior
+    of the dual envelope follower/comparator circuit on the original hardware.
+    The circuit detects the input fundamental, and generates a square wave / 2.
+    The buzz switch effectively converts the square wave to a triangle wave by
+    applying a low pass filter to the square wave.
+ 
   ============================================================================
 */
 
@@ -63,7 +69,6 @@ void SubOctave::reset()
     gateOpen = false;
     gate = 0.0f;
 
-    fundamentalCarrierOut = 0.0f;
     subCarrierOut = 0.0f;
     outputSlew = 0.0f;
     buzzFilter = 0.0f;
@@ -80,11 +85,9 @@ void SubOctave::setFirstFlipFlop (bool newState) noexcept
     ff1 = newState;
 
     // Only clock the divide-by-two stage if the first-stage transition is
-    // within a plausible half-cycle range.
+    // within a reasonable half-cycle range
     if (halfPeriod >= minHalfPeriodSamples && halfPeriod <= maxHalfPeriodSamples)
     {
-        // Toggle the divider on one consistent edge of the first flip-flop.
-        // ff1 is the fundamental square. ff2 is the octave-down square.
         if (ff1)
             ff2 = ! ff2;
     }
@@ -101,8 +104,8 @@ void SubOctave::updateComparators (float x) noexcept
 
     const float releaseThreshold = threshold * kHysteresisRatio;
 
-    // Complementary Schmitt comparators.
-    // Positive comparator clears ff1.
+    // Complementary Schmitt comparators
+    // Positive comparator clears ff1
     if (! positiveComparator && x >= threshold)
     {
         positiveComparator = true;
@@ -114,7 +117,7 @@ void SubOctave::updateComparators (float x) noexcept
         positiveComparator = false;
     }
 
-    // Negative comparator sets ff1.
+    // Negative comparator sets ff1
     if (! negativeComparator && x <= -threshold)
     {
         negativeComparator = true;
@@ -129,15 +132,15 @@ void SubOctave::updateComparators (float x) noexcept
 
 float SubOctave::processSample (float input, bool buzz) noexcept
 {
-    // Bass-friendly DC removal. This is intentionally gentle.
+    // Bass friendly DC removal
     highpassState += highpassCoeff * (input - highpassState);
     const float highpassed = input - highpassState;
 
-    // Tracking low-pass reduces string/fret/pick harmonics before comparison.
+    // For reduction of string/fret/pick harmonics
     lowpassState += lowpassCoeff * (highpassed - lowpassState);
     const float tracked = lowpassState;
 
-    // Perfect-rectifier style follower with separate attack/release.
+    // Perfect rectifier style follower with separate attack/release.
     const float rectified = std::abs (tracked);
     const float envCoeff = rectified > envelope ? envAttackCoeff : envReleaseCoeff;
     envelope += envCoeff * (rectified - envelope);
@@ -148,7 +151,7 @@ float SubOctave::processSample (float input, bool buzz) noexcept
 
     updateComparators (tracked);
 
-    // Simple level gate only. This does not alter pitch/divider behavior.
+    // Simple level gate
     if (! gateOpen && envelope >= kGateOpenThreshold)
         gateOpen = true;
     else if (gateOpen && envelope <= kGateCloseThreshold)
@@ -158,14 +161,9 @@ float SubOctave::processSample (float input, bool buzz) noexcept
     const float gateCoeff = gateTarget > gate ? gateAttackCoeff : gateReleaseCoeff;
     gate += gateCoeff * (gateTarget - gate);
 
-    const float fundamentalRaw = ff1 ? 1.0f : -1.0f;
     const float subRaw = ff2 ? 1.0f : -1.0f;
 
-    // Ring/growl carriers are exposed separately:
-    // fundamentalCarrierOut = first flip-flop, used by ring mod
-    // subCarrierOut = second flip-flop, used by audible sub and growl divider
-    fundamentalCarrierOut += carrierSlewCoeff * ((gateOpen ? fundamentalRaw : 0.0f) - fundamentalCarrierOut);
-    subCarrierOut         += carrierSlewCoeff * ((gateOpen ? subRaw         : 0.0f) - subCarrierOut);
+    subCarrierOut += carrierSlewCoeff * ((gateOpen ? subRaw : 0.0f) - subCarrierOut);
 
     const float levelProportional = juce::jlimit (-kOutputLimit,
                                                   kOutputLimit,

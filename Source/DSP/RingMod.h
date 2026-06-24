@@ -19,6 +19,6 @@ class RingMod
 
     float processSample (float inpur, float amount) noexcept;
     private:
-    // Differential pair knee width — thermal voltage scaled to audio levels
+    
     static constexpr float kSoftness = 0.01f;
 };

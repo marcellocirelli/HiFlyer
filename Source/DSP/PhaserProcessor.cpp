@@ -4,6 +4,10 @@
     PhaserProcessor.cpp
     Created: 18 Feb 2026 11:24:31am
     Author:  Marcello Cirelli
+ 
+    This is the phaser processor of the plugin. The phaser is a 12 stage all-pass
+    phase filter with frequencydependent phase shift. The 6 signal path topologies
+    are pulled directly from the original hardware.
 
   ==============================================================================
 */

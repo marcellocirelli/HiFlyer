@@ -18,7 +18,7 @@ public:
     float processSample (float input, float attackEnv) noexcept;
 
 private:
-    double sampleRate = 48000.0;
+    double sampleRate = 0.0;
 
     // Output HPF state: C22[1µF] × R68[470Ω] ≈ 338Hz
     float hpfState  = 0.0f;

@@ -4,6 +4,10 @@
     TopBoost.cpp
     Created: 24 Feb 2026 12:45:48pm
     Author:  Marcello Cirelli
+ 
+    This module emulates the top boost of the original hardware using bilinear transform. Coefficients and
+    frequencies are derived from the schematic resistors and capacitors. This provides
+    roughly +30dB of boost in the 3.3kHz region.
 
   ==============================================================================
 */

@@ -5,6 +5,11 @@
     Created: 24 Mar 2026 11:01:59am
     Author:  Marcello Cirelli
 
+    The ring modulator is not a traditional ring mod. This simply takes the input
+    and produces a half-wave rectified version of it. The parameter on the original
+    hardware is designed to fully cancel the fundamental at its maximum position.
+    I added a soft knee to emulate the imperfections of the original hardware.
+ 
   ==============================================================================
 */
 
@@ -23,12 +28,8 @@ void RingMod::reset()
 
 float RingMod::processSample (float input, float amount) noexcept
 {
-    // Q2/Q3 differential pair: soft half-wave rectification of negative half,
-    // inverted to positive. tanh knee matches BJT differential pair character.
     const float negInput = -input;
     const float softRect = 0.5f * negInput * (1.0f + std::tanh (negInput / kSoftness));
 
-    // A11 OTA: add controlled amount of rectified component.
-    // gain 0–2 maps from fader 0–1 so at amount=1 the fundamental fully cancels.
     return 2.0f * amount * softRect;
 }

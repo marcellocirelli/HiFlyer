@@ -182,9 +182,6 @@ void HiFlyerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
         lfo.setSpeed (params.modSpeed);
         lfo.setDepth (params.modDepth);
 
-        // Detection must happen before the LFO/phaser control step so attack/decay
-        // pulses are consumed on the same sample they are generated. The old order
-        // made the phaser/LFO see one-sample pulses late.
         bool blockAttackTrigger = false;
         bool blockDecayTrigger = false;
         EnvelopeOutput envByChannel[maxChannels];
@@ -196,7 +193,7 @@ void HiFlyerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
 
             // The fall envelope is applied immediately after detection and before
             // every audio effect. The detector itself listens to the raw input so
-            // the fall control cannot suppress its own retriggering.
+            // the fall control cannot suppress its own retriggering
             envByChannel[ch] = envelopeDetector[ch].processSample (dry, dry,
                                                                    params.fallTime,
                                                                    params.riseTime,
@@ -223,7 +220,7 @@ void HiFlyerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
             const float dry = channelData[sample];
             const auto& env = envByChannel[ch];
 
-            // Signal order: Fall rate -> top boost -> sub octave / ring mod -> fuzz -> phaser.
+            // Signal order: Fall rate > top boost > sub octave / ring mod > fuzz > phaser
             const float fallen = dry * env.decayEnvelope;
 
             const float boosted = topBoost[ch].processSample (fallen, params.topBoost);
@@ -240,8 +237,7 @@ void HiFlyerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
 
             float chanModulation = modulation;
             if (isSineMode && params.growl != 1)
-                chanModulation = juce::jlimit (0.0f, 1.0f,
-                                               modulation + growlOut * params.modDepth);
+                chanModulation = juce::jlimit (0.0f, 1.0f, modulation + growlOut * params.modDepth);
 
             const float wet = phaser[ch].processSample (effected, chanModulation);
 

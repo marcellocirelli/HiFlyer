@@ -4,6 +4,9 @@
     LFO.cpp
     Created: 18 Feb 2026 1:18:00pm
     Author:  Marcello Cirelli
+ 
+    This module generates waveforms for the phaser control modulation. Rates were derived / estimated
+    from the original hardware schematics.
 
   ==============================================================================
 */

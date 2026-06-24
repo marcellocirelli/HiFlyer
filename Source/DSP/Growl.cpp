@@ -4,6 +4,10 @@
     Growl.cpp
     Created: 24 Mar 2026 8:22:49pm
     Author:  Marcello Cirelli
+ 
+    This module takes the generated fundamental from the sub octave module, further divides it by
+    2 or by 4 to generate 2nd and 3rd octave square waves. These waves can be fed into the phaser
+    for further modulation
 
   ==============================================================================
 */
