@@ -1,48 +1,52 @@
 /*
-  ==============================================================================
+  ============================================================================
 
     SustainFuzz.cpp
-    Created: 24 Mar 2026 1:04:24pm
-    Author:  Marcello Cirelli
+ 
+    This module emulates the hardware sound of the fuzz module. Resistor and
+    capacitor values were converted to coefficients and frequency levels. Based
+    on the hardware's single BC169C silicon transistor fuzz.
 
-  ==============================================================================
+  ============================================================================
 */
 
 #include "SustainFuzz.h"
 #include <cmath>
 #include <algorithm>
 
-void SustainFuzz::prepare(const juce::dsp::ProcessSpec &spec)
+void SustainFuzz::prepare (const juce::dsp::ProcessSpec& spec)
 {
-    sampleRate = spec.sampleRate;
-    // One-pole LPF coefficient
-    const float w = juce::MathConstants<float>::twoPi * kLpfHz / static_cast<float>(sampleRate);
-    lpfCoeff = w / (1.0f + w);
-    
+    sampleRate = spec.sampleRate > 0.0 ? spec.sampleRate : 48000.0;
+
+    // Output HPF: C22[1µF] × R68[470Ω] ≈ 338Hz
+    const float wHpf = juce::MathConstants<float>::twoPi * kHpfHz / static_cast<float> (sampleRate);
+    hpfCoeff = 1.0f / (1.0f + wHpf);
+
+    // Output LPF: C21[22kp] × R64[22k] ≈ 329Hz
+    const float wLpf = juce::MathConstants<float>::twoPi * kLpfHz / static_cast<float> (sampleRate);
+    lpfCoeff = wLpf / (1.0f + wLpf);
+
     reset();
 }
 
 void SustainFuzz::reset()
 {
+    hpfState = 0.0f;
     lpfState = 0.0f;
 }
 
-float SustainFuzz::processSample(float input, float attackEnvelope, float fuzzLevel) noexcept
+float SustainFuzz::processSample (float input, float attackEnv) noexcept
 {
-    const float ceiling = std::max (attackEnvelope, 1e-10f);
-    const float bias = ceiling * 0.5f;
-    
-    // Invert/amplify/offset
-    const float amplified = bias + (-input * kGain);
-    
-    // Clipping
-    const float clipped = std::clamp(amplified, 0.0f, ceiling);
-    
-    // Remove DC offset
-    const float acCoupled = clipped - bias;
-    
-    // Output LPF
-    lpfState += lpfCoeff * (acCoupled - lpfState);
-    
-    return lpfState * kOtaGain * fuzzLevel;
+    const float ceiling = std::max (attackEnv, kCeilingFloor);
+    const float amplified = input * kGain;
+    const float clipped = std::clamp (amplified, -ceiling, ceiling);
+
+    // Output HPF: C22[1µF] × R68[470Ω] — AC coupling from base
+    const float hpfOut = hpfCoeff * (hpfState + clipped);
+    hpfState = hpfOut - clipped;
+
+    // Output LPF: C21[22kp] × R64[22k] ≈ 329Hz
+    lpfState += lpfCoeff * (hpfOut - lpfState);
+
+    return lpfState;
 }

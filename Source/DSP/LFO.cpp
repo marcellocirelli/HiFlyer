@@ -4,6 +4,9 @@
     LFO.cpp
     Created: 18 Feb 2026 1:18:00pm
     Author:  Marcello Cirelli
+ 
+    This module generates waveforms for the phaser control modulation. Rates were derived / estimated
+    from the original hardware schematics.
 
   ==============================================================================
 */
@@ -11,7 +14,7 @@
 #include "LFO.h"
 #include <cmath>
 
-void LFO::prepare(const juce::dsp::ProcessSpec &spec)
+void LFO::prepare (const juce::dsp::ProcessSpec& spec)
 {
     sampleRate = spec.sampleRate;
     reset();
@@ -25,30 +28,22 @@ void LFO::reset()
     rampActive = false;
 }
 
-void LFO::setWaveform(Waveform newWaveform)
+void LFO::setWaveform (Waveform newWaveform)
 {
     waveform = newWaveform;
 }
 
-void LFO::setSpeed(float newSpeed) noexcept
+void LFO::setSpeed (float newSpeed) noexcept
 {
-    speed = juce::jlimit(0.0f, 1.0f, newSpeed);
+    speed = juce::jlimit (0.0f, 1.0f, newSpeed);
 }
 
-void LFO::setDepth(float newDepth) noexcept
+void LFO::setDepth (float newDepth) noexcept
 {
-    depth = juce::jlimit(0.0f, 1.0f, newDepth);
+    depth = juce::jlimit (0.0f, 1.0f, newDepth);
 }
 
-float LFO::frequencyForSpeed(float s) const noexcept
-{
-    const bool slow = (waveform == Waveform::SlowSine);
-    const float maxHz = slow ? slowMaxHz : fastMaxHz;
-    
-    return maxHz * s;
-}
-
-float LFO::processSample(bool attackTrigger, bool decayTrigger, float rampAmount) noexcept
+float LFO::processSample (bool attackTrigger, bool decayTrigger, float rampAmount) noexcept
 {
     if (waveform == Waveform::SlowSine || waveform == Waveform::FastSine)
     {

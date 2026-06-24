@@ -10,7 +10,7 @@
 
 #include "Parameters.h"
 
-juce::StringArray modulationTypes = {
+static const juce::StringArray modulationTypes {
     "Sine Slow",
     "Sine Fast",
     "Sine Ramp Up",
@@ -19,7 +19,7 @@ juce::StringArray modulationTypes = {
     "Ramp Down"
 };
 
-juce::StringArray treatmentTypes = {
+static const juce::StringArray treatmentTypes {
     "Vibrato",
     "Phasing 1",
     "Phasing 2",
@@ -28,67 +28,67 @@ juce::StringArray treatmentTypes = {
     "Meow"
 };
 
-juce::StringArray pedalPos = {
+static const juce::StringArray pedalPos {
     "Reverse",
     "Off",
     "Normal"
 };
 
-juce::StringArray triggerSensPos = {
+static const juce::StringArray triggerSensPos {
     "Strum",
     "Solo"
 };
 
-juce::StringArray growlPos = {
+static const juce::StringArray growlPos {
     "2",
     "Off",
     "4"
 };
 
 template<typename T>
-static void castParameter(juce::AudioProcessorValueTreeState& apvts, const juce::ParameterID& id, T& destination)
+static void castParameter (juce::AudioProcessorValueTreeState& apvts, const juce::ParameterID& id, T& destination)
 {
-    destination = dynamic_cast<T>(apvts.getParameter(id.getParamID()));
-    jassert(destination);
+    destination = dynamic_cast<T> (apvts.getParameter (id.getParamID()));
+    jassert (destination);
 }
 
-static juce::String stringFromDecibels(float value, int)
+static juce::String stringFromDecibels (float value, int)
 {
-    return juce::String(value, 1) + " dB";
+    return juce::String (value, 1) + " dB";
 }
 
-static juce::String stringFromPercent(float value, int)
+static juce::String stringFromPercent (float value, int)
 {
-    return juce::String(int(value)) + " %";
+    return juce::String (static_cast<int> (value)) + " %";
 }
 
-Parameters::Parameters(juce::AudioProcessorValueTreeState& apvts)
+Parameters::Parameters (juce::AudioProcessorValueTreeState& apvts)
 {
-    castParameter(apvts, gainParamID, gainParam);
-    castParameter(apvts, fallTimeParamID, fallTimeParam);
-    castParameter(apvts, riseTimeParamID, riseTimeParam);
-    castParameter(apvts, controlModParamID, controlModParam);
-    castParameter(apvts, treatmentParamID, treatmentParam);
-    castParameter(apvts, topBoostParamID, topBoostParam);
-    castParameter(apvts, subOctaveParamID, subOctaveParam);
-    castParameter(apvts, ringModParamID, ringModParam);
-    castParameter(apvts, fuzzLevelParamID, fuzzLevelParam);
-    castParameter(apvts, mixParamID, mixParam);
-    castParameter(apvts, modSpeedParamID, modSpeedParam);
-    castParameter(apvts, modRampParamID, modRampParam);
-    castParameter(apvts, modDepthParamID, modDepthParam);
-    castParameter(apvts, freqShiftParamID, freqShiftParam);
-    castParameter(apvts, lpTopBoostParamID, lpTopBoostParam);
-    castParameter(apvts, lpSubOctaveParamID, lpSubOctaveParam);
-    castParameter(apvts, lpRingModParamID, lpRingModParam);
-    castParameter(apvts, lpFuzzLevelParamID, lpFuzzLevelParam);
-    castParameter(apvts, rpModSpeedParamID, rpModSpeedParam);
-    castParameter(apvts, rpModRampParamID, rpModRampParam);
-    castParameter(apvts, rpModDepthParamID, rpModDepthParam);
-    castParameter(apvts, rpFreqShiftParamID, rpFreqShiftParam);
-    castParameter(apvts, triggerSensParamID, triggerSensParam);
-    castParameter(apvts, buzzParamID, buzzParam);
-    castParameter(apvts, growlParamID, growlParam);
+    castParameter (apvts, gainParamID, gainParam);
+    castParameter (apvts, fallTimeParamID, fallTimeParam);
+    castParameter (apvts, riseTimeParamID, riseTimeParam);
+    castParameter (apvts, controlModParamID, controlModParam);
+    castParameter (apvts, treatmentParamID, treatmentParam);
+    castParameter (apvts, topBoostParamID, topBoostParam);
+    castParameter (apvts, subOctaveParamID, subOctaveParam);
+    castParameter (apvts, ringModParamID, ringModParam);
+    castParameter (apvts, fuzzLevelParamID, fuzzLevelParam);
+    castParameter (apvts, mixParamID, mixParam);
+    castParameter (apvts, modSpeedParamID, modSpeedParam);
+    castParameter (apvts, modRampParamID, modRampParam);
+    castParameter (apvts, modDepthParamID, modDepthParam);
+    castParameter (apvts, freqShiftParamID, freqShiftParam);
+    castParameter (apvts, lpTopBoostParamID, lpTopBoostParam);
+    castParameter (apvts, lpSubOctaveParamID, lpSubOctaveParam);
+    castParameter (apvts, lpRingModParamID, lpRingModParam);
+    castParameter (apvts, lpFuzzLevelParamID, lpFuzzLevelParam);
+    castParameter (apvts, rpModSpeedParamID, rpModSpeedParam);
+    castParameter (apvts, rpModRampParamID, rpModRampParam);
+    castParameter (apvts, rpModDepthParamID, rpModDepthParam);
+    castParameter (apvts, rpFreqShiftParamID, rpFreqShiftParam);
+    castParameter (apvts, triggerSensParamID, triggerSensParam);
+    castParameter (apvts, buzzParamID, buzzParam);
+    castParameter (apvts, growlParamID, growlParam);
 }
 
 juce::AudioProcessorValueTreeState::ParameterLayout Parameters::createParameterLayout()
@@ -98,21 +98,21 @@ juce::AudioProcessorValueTreeState::ParameterLayout Parameters::createParameterL
     layout.add(std::make_unique<juce::AudioParameterFloat>(
         gainParamID,
         "Output",
-        juce::NormalisableRange<float> { -24.0f, 6.0f},
+        juce::NormalisableRange<float> { -24.0f, 6.0f },
         0.0f,
         juce::AudioParameterFloatAttributes().withStringFromValueFunction(stringFromDecibels)));
     
     layout.add(std::make_unique<juce::AudioParameterFloat>(
         fallTimeParamID,
         "Fall Time",
-        juce::NormalisableRange<float> { 0.0f, 100.0f},
+        juce::NormalisableRange<float> { 0.0f, 100.0f },
         100.0f,
         juce::AudioParameterFloatAttributes().withStringFromValueFunction(stringFromPercent)));
     
     layout.add(std::make_unique<juce::AudioParameterFloat>(
         riseTimeParamID,
         "Rise Time",
-        juce::NormalisableRange<float> { 0.0f, 100.0f},
+        juce::NormalisableRange<float> { 0.0f, 100.0f },
         0.0f,
         juce::AudioParameterFloatAttributes().withStringFromValueFunction(stringFromPercent)));
     
@@ -160,7 +160,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout Parameters::createParameterL
         mixParamID,
         "Bypass Mix",
         juce::NormalisableRange<float> { 0.0f, 100.0f, 1.0f },
-        0.0f,
+        100.0f,
         juce::AudioParameterFloatAttributes().withStringFromValueFunction(stringFromPercent)));
     
     layout.add(std::make_unique<juce::AudioParameterFloat>(
@@ -243,7 +243,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout Parameters::createParameterL
         triggerSensParamID,
         "Trigger Sensitivity",
         triggerSensPos,
-        true));
+        1));
     
     layout.add(std::make_unique<juce::AudioParameterBool>(
         buzzParamID,
@@ -261,18 +261,18 @@ juce::AudioProcessorValueTreeState::ParameterLayout Parameters::createParameterL
 
 void Parameters::update() noexcept
 {
-    gainSmoother.setTargetValue(juce::Decibels::decibelsToGain(gainParam->get()));
-    fallTimeSmoother.setTargetValue(fallTimeParam->get() * 0.01f);
-    riseTimeSmoother.setTargetValue(riseTimeParam->get() * 0.01f);
-    topBoostSmoother.setTargetValue(topBoostParam->get() * 0.01f);
-    subOctaveSmoother.setTargetValue(subOctaveParam->get() * 0.01f);
-    ringModSmoother.setTargetValue(ringModParam->get() * 0.01f);
-    fuzzLevelSmoother.setTargetValue(fuzzLevelParam->get() * 0.01f);
-    mixSmoother.setTargetValue(mixParam->get() * 0.01f);
-    modSpeedSmoother.setTargetValue(modSpeedParam->get() * 0.01f);
-    modRampSmoother.setTargetValue(modRampParam->get() * 0.01f);
-    modDepthSmoother.setTargetValue(modDepthParam->get() * 0.01f);
-    freqShiftSmoother.setTargetValue(freqShiftParam->get() * 0.01f);
+    gainSmoother.setTargetValue (juce::Decibels::decibelsToGain (gainParam->get()));
+    fallTimeSmoother.setTargetValue (fallTimeParam->get() * 0.01f);
+    riseTimeSmoother.setTargetValue (riseTimeParam->get() * 0.01f);
+    topBoostSmoother.setTargetValue (topBoostParam->get() * 0.01f);
+    subOctaveSmoother.setTargetValue (subOctaveParam->get() * 0.01f);
+    ringModSmoother.setTargetValue (ringModParam->get() * 0.01f);
+    fuzzLevelSmoother.setTargetValue (fuzzLevelParam->get() * 0.01f);
+    mixSmoother.setTargetValue (mixParam->get() * 0.01f);
+    modSpeedSmoother.setTargetValue (modSpeedParam->get() * 0.01f);
+    modRampSmoother.setTargetValue (modRampParam->get() * 0.01f);
+    modDepthSmoother.setTargetValue (modDepthParam->get() * 0.01f);
+    freqShiftSmoother.setTargetValue (freqShiftParam->get() * 0.01f);
     
     lpTopBoost = lpTopBoostParam->getIndex();
     lpSubOctave = lpSubOctaveParam->getIndex();
@@ -289,21 +289,21 @@ void Parameters::update() noexcept
     treatment = treatmentParam->getIndex();
 }
 
-void Parameters::prepareToPlay(double sampleRate) noexcept
+void Parameters::prepareToPlay (double sampleRate) noexcept
 {
-    double duration = 0.02;
-    gainSmoother.reset(sampleRate, duration);
-    fallTimeSmoother.reset(sampleRate, duration);
-    riseTimeSmoother.reset(sampleRate, duration);
-    topBoostSmoother.reset(sampleRate, duration);
-    subOctaveSmoother.reset(sampleRate, duration);
-    ringModSmoother.reset(sampleRate, duration);
-    fuzzLevelSmoother.reset(sampleRate, duration);
-    mixSmoother.reset(sampleRate, duration);
-    modSpeedSmoother.reset(sampleRate, duration);
-    modRampSmoother.reset(sampleRate, duration);
-    modDepthSmoother.reset(sampleRate, duration);
-    freqShiftSmoother.reset(sampleRate, duration);
+    const double duration = 0.02;
+    gainSmoother.reset (sampleRate, duration);
+    fallTimeSmoother.reset (sampleRate, duration);
+    riseTimeSmoother.reset (sampleRate, duration);
+    topBoostSmoother.reset (sampleRate, duration);
+    subOctaveSmoother.reset (sampleRate, duration);
+    ringModSmoother.reset (sampleRate, duration);
+    fuzzLevelSmoother.reset (sampleRate, duration);
+    mixSmoother.reset (sampleRate, duration);
+    modSpeedSmoother.reset (sampleRate, duration);
+    modRampSmoother.reset (sampleRate, duration);
+    modDepthSmoother.reset (sampleRate, duration);
+    freqShiftSmoother.reset (sampleRate, duration);
 }
 
 void Parameters::reset() noexcept
@@ -334,18 +334,18 @@ void Parameters::reset() noexcept
     rpModDepth = 1;
     rpFreqShift = 1;
     
-    gainSmoother.setCurrentAndTargetValue(juce::Decibels::decibelsToGain(gainParam->get()));
-    fallTimeSmoother.setCurrentAndTargetValue(fallTimeParam->get());
-    riseTimeSmoother.setCurrentAndTargetValue(riseTimeParam->get());
-    topBoostSmoother.setCurrentAndTargetValue(topBoostParam->get());
-    subOctaveSmoother.setCurrentAndTargetValue(subOctaveParam->get());
-    ringModSmoother.setCurrentAndTargetValue(ringModParam->get());
-    fuzzLevelSmoother.setCurrentAndTargetValue(fuzzLevelParam->get());
-    mixSmoother.setCurrentAndTargetValue(mixParam->get());
-    modSpeedSmoother.setCurrentAndTargetValue(modSpeedParam->get());
-    modRampSmoother.setCurrentAndTargetValue(modRampParam->get());
-    modDepthSmoother.setCurrentAndTargetValue(modDepthParam->get());
-    freqShiftSmoother.setCurrentAndTargetValue(freqShiftParam->get());
+    gainSmoother.setCurrentAndTargetValue (juce::Decibels::decibelsToGain (gainParam->get()));
+    fallTimeSmoother.setCurrentAndTargetValue (fallTimeParam->get());
+    riseTimeSmoother.setCurrentAndTargetValue (riseTimeParam->get());
+    topBoostSmoother.setCurrentAndTargetValue (topBoostParam->get());
+    subOctaveSmoother.setCurrentAndTargetValue (subOctaveParam->get());
+    ringModSmoother.setCurrentAndTargetValue (ringModParam->get());
+    fuzzLevelSmoother.setCurrentAndTargetValue (fuzzLevelParam->get());
+    mixSmoother.setCurrentAndTargetValue (mixParam->get());
+    modSpeedSmoother.setCurrentAndTargetValue (modSpeedParam->get());
+    modRampSmoother.setCurrentAndTargetValue (modRampParam->get());
+    modDepthSmoother.setCurrentAndTargetValue (modDepthParam->get());
+    freqShiftSmoother.setCurrentAndTargetValue (freqShiftParam->get());
 }
 
 void Parameters::smoothen() noexcept

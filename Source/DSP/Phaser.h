@@ -38,7 +38,7 @@ class Phaser
     float sweepMinHz = 300.0f;
     float sweepMaxHz = nominalFreqHz;
     
-    float sampleRate = 0.0f;
+    double sampleRate = 0.0;
     float z1[numStages] {};
     
     int outputTap = numStages;

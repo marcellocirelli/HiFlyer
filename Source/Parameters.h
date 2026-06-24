@@ -9,6 +9,7 @@
 */
 
 #pragma once
+
 #include <JuceHeader.h>
 
 // Parameter IDs
@@ -43,13 +44,13 @@ const juce::ParameterID growlParamID {"growl", 1};
 
 class Parameters
 {
-    public:
-    Parameters(juce::AudioProcessorValueTreeState& apvts);
+public:
+    explicit Parameters (juce::AudioProcessorValueTreeState& apvts);
     
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     
     void update() noexcept;
-    void prepareToPlay(double sampleRate) noexcept;
+    void prepareToPlay (double sampleRate) noexcept;
     void reset() noexcept;
     void smoothen() noexcept;
     
@@ -60,7 +61,7 @@ class Parameters
     float subOctave = 0.0f;
     float ringMod = 0.0f;
     float fuzzLevel = 0.0f;
-    float mix = 0.0f;
+    float mix = 100.0f;
     float modSpeed = 0.0f;
     float modRamp = 0.0f;
     float modDepth = 0.0f;
@@ -79,55 +80,54 @@ class Parameters
     int rpModDepth = 1;
     int rpFreqShift = 1;
     
-    private:
-    juce::AudioParameterFloat* gainParam;
+private:
+    juce::AudioParameterFloat* gainParam = nullptr;
     juce::LinearSmoothedValue<float> gainSmoother;
     
-    juce::AudioParameterFloat* fallTimeParam;
+    juce::AudioParameterFloat* fallTimeParam = nullptr;
     juce::LinearSmoothedValue<float> fallTimeSmoother;
     
-    juce::AudioParameterFloat* riseTimeParam;
+    juce::AudioParameterFloat* riseTimeParam = nullptr;
     juce::LinearSmoothedValue<float> riseTimeSmoother;
     
-    juce::AudioParameterFloat* topBoostParam;
+    juce::AudioParameterFloat* topBoostParam = nullptr;
     juce::LinearSmoothedValue<float> topBoostSmoother;
 
-    juce::AudioParameterFloat* subOctaveParam;
+    juce::AudioParameterFloat* subOctaveParam = nullptr;
     juce::LinearSmoothedValue<float> subOctaveSmoother;
     
-    juce::AudioParameterFloat* ringModParam;
+    juce::AudioParameterFloat* ringModParam = nullptr;
     juce::LinearSmoothedValue<float> ringModSmoother;
     
-    juce::AudioParameterFloat* fuzzLevelParam;
+    juce::AudioParameterFloat* fuzzLevelParam = nullptr;
     juce::LinearSmoothedValue<float> fuzzLevelSmoother;
     
-    juce::AudioParameterFloat* mixParam;
+    juce::AudioParameterFloat* mixParam = nullptr;
     juce::LinearSmoothedValue<float> mixSmoother;
     
-    juce::AudioParameterFloat* modSpeedParam;
+    juce::AudioParameterFloat* modSpeedParam = nullptr;
     juce::LinearSmoothedValue<float> modSpeedSmoother;
     
-    juce::AudioParameterFloat* modRampParam;
+    juce::AudioParameterFloat* modRampParam = nullptr;
     juce::LinearSmoothedValue<float> modRampSmoother;
     
-    juce::AudioParameterFloat* modDepthParam;
+    juce::AudioParameterFloat* modDepthParam = nullptr;
     juce::LinearSmoothedValue<float> modDepthSmoother;
     
-    juce::AudioParameterFloat* freqShiftParam;
+    juce::AudioParameterFloat* freqShiftParam = nullptr;
     juce::LinearSmoothedValue<float> freqShiftSmoother;
     
-    juce::AudioParameterBool* buzzParam;
-    juce::AudioParameterChoice* growlParam;
-    juce::AudioParameterChoice* triggerSensParam;
-    juce::AudioParameterChoice* controlModParam;
-    juce::AudioParameterChoice* treatmentParam;
-    juce::AudioParameterChoice* lpTopBoostParam;
-    juce::AudioParameterChoice* lpSubOctaveParam;
-    juce::AudioParameterChoice* lpRingModParam;
-    juce::AudioParameterChoice* lpFuzzLevelParam;
-    juce::AudioParameterChoice* rpModSpeedParam;
-    juce::AudioParameterChoice* rpModRampParam;
-    juce::AudioParameterChoice* rpModDepthParam;
-    juce::AudioParameterChoice* rpFreqShiftParam;
-
+    juce::AudioParameterBool* buzzParam = nullptr;
+    juce::AudioParameterChoice* growlParam = nullptr;
+    juce::AudioParameterChoice* triggerSensParam = nullptr;
+    juce::AudioParameterChoice* controlModParam = nullptr;
+    juce::AudioParameterChoice* treatmentParam = nullptr;
+    juce::AudioParameterChoice* lpTopBoostParam = nullptr;
+    juce::AudioParameterChoice* lpSubOctaveParam = nullptr;
+    juce::AudioParameterChoice* lpRingModParam = nullptr;
+    juce::AudioParameterChoice* lpFuzzLevelParam = nullptr;
+    juce::AudioParameterChoice* rpModSpeedParam = nullptr;
+    juce::AudioParameterChoice* rpModRampParam = nullptr;
+    juce::AudioParameterChoice* rpModDepthParam = nullptr;
+    juce::AudioParameterChoice* rpFreqShiftParam = nullptr;
 };

@@ -19,14 +19,12 @@ HiFlyerAudioProcessor::HiFlyerAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       ), params(apvts)
+                       ), params (apvts)
 #endif
 {
 }
 
-HiFlyerAudioProcessor::~HiFlyerAudioProcessor()
-{
-}
+HiFlyerAudioProcessor::~HiFlyerAudioProcessor() = default;
 
 //==============================================================================
 const juce::String HiFlyerAudioProcessor::getName() const
@@ -78,15 +76,18 @@ int HiFlyerAudioProcessor::getCurrentProgram()
 
 void HiFlyerAudioProcessor::setCurrentProgram (int index)
 {
+    juce::ignoreUnused (index);
 }
 
 const juce::String HiFlyerAudioProcessor::getProgramName (int index)
 {
+    juce::ignoreUnused (index);
     return {};
 }
 
 void HiFlyerAudioProcessor::changeProgramName (int index, const juce::String& newName)
 {
+    juce::ignoreUnused (index, newName);
 }
 
 //==============================================================================
@@ -94,10 +95,10 @@ void HiFlyerAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
 {
     juce::dsp::ProcessSpec spec;
     spec.sampleRate = sampleRate;
-    spec.maximumBlockSize = static_cast<juce::uint32>(samplesPerBlock);
+    spec.maximumBlockSize = static_cast<juce::uint32> (samplesPerBlock);
     spec.numChannels = 1;
     
-    lfo.prepare(spec);
+    lfo.prepare (spec);
     for (int ch = 0; ch < maxChannels; ++ch)
     {
         phaser[ch].prepare (spec);
@@ -105,13 +106,13 @@ void HiFlyerAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
         phaser[ch].setAudioToModDepth (0.1f);
         topBoost[ch].prepare (spec);
         envelopeDetector[ch].prepare (spec);
-        subOct[ch].prepare(spec);
-        ringMod[ch].prepare(spec);
-        sustainFuzz[ch].prepare(spec);
-        growl[ch].prepare(spec);
+        subOct[ch].prepare (spec);
+        ringMod[ch].prepare (spec);
+        sustainFuzz[ch].prepare (spec);
+        growl[ch].prepare (spec);
     }
     
-    params.prepareToPlay(sampleRate);
+    params.prepareToPlay (sampleRate);
     params.reset();
 }
 
@@ -154,23 +155,26 @@ bool HiFlyerAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) 
 void HiFlyerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
-    auto totalNumInputChannels  = getTotalNumInputChannels();
-    auto totalNumOutputChannels = getTotalNumOutputChannels();
+    juce::ignoreUnused (midiMessages);
+
+    const auto totalNumInputChannels  = getTotalNumInputChannels();
+    const auto totalNumOutputChannels = getTotalNumOutputChannels();
 
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
     params.update();
-    
-    lfo.setWaveform(static_cast<LFO::Waveform>(params.controlMod));
-    const auto treatment = static_cast<PhaserProcessor::Treatment>(params.treatment);
+
+    lfo.setWaveform (static_cast<LFO::Waveform> (params.controlMod));
+
+    const auto treatment = static_cast<PhaserProcessor::Treatment> (params.treatment);
     for (int ch = 0; ch < totalNumInputChannels; ++ch)
         phaser[ch].setTreatment (treatment);
-    
+
     const bool soloMode = (params.triggerSens == 1);
-    
+    const bool isSineMode = (params.controlMod <= 3);
     const int numSamples = buffer.getNumSamples();
-    
+
     for (int sample = 0; sample < numSamples; ++sample)
     {
         params.smoothen();
@@ -178,42 +182,67 @@ void HiFlyerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
         lfo.setSpeed (params.modSpeed);
         lfo.setDepth (params.modDepth);
 
-        const float lfoValue = lfo.processSample(lfoAttackTrigger, lfoDecayTrigger, params.modRamp);
-        lfoAttackTrigger = false;
-        lfoDecayTrigger = false;
-        
+        bool blockAttackTrigger = false;
+        bool blockDecayTrigger = false;
+        EnvelopeOutput envByChannel[maxChannels];
+
+        for (int ch = 0; ch < totalNumInputChannels; ++ch)
+        {
+            const auto* channelData = buffer.getReadPointer (ch);
+            const float dry = channelData[sample];
+
+            // The fall envelope is applied immediately after detection and before
+            // every audio effect. The detector itself listens to the raw input so
+            // the fall control cannot suppress its own retriggering
+            envByChannel[ch] = envelopeDetector[ch].processSample (dry, dry,
+                                                                   params.fallTime,
+                                                                   params.riseTime,
+                                                                   soloMode);
+
+            if (envByChannel[ch].attackTrigger)
+                blockAttackTrigger = true;
+            if (envByChannel[ch].decayTrigger)
+                blockDecayTrigger = true;
+        }
+
+        const float lfoValue = lfo.processSample (blockAttackTrigger,
+                                                  blockDecayTrigger,
+                                                  params.modRamp);
+
         const float center = params.freqShift;
-        const float modulation = juce::jlimit (0.0f, 1.0f, center + (lfoValue - params.modDepth * 0.5f));
+        const float modulation = juce::jlimit (0.0f, 1.0f,
+                                               center + (lfoValue - params.modDepth * 0.5f));
 
         for (int ch = 0; ch < totalNumInputChannels; ++ch)
         {
             auto* channelData = buffer.getWritePointer (ch);
 
             const float dry = channelData[sample];
-            
-            const float boosted = topBoost[ch].processSample(dry, params.topBoost);
-            const auto env = envelopeDetector[ch].processSample(dry, boosted, params.fallTime, params.riseTime, soloMode);
-            
-            if (ch == 0)
-            {
-                lfoAttackTrigger = env.attackTrigger;
-                lfoDecayTrigger = env.decayTrigger;
-            }
-            
-            const float sub = subOct[ch].processSample(dry, !params.buzz);
-            const float growlOut = growl[ch].processSample(sub, params.growl);
-            
-            const float ring = ringMod[ch].processSample(boosted, params.ringMod);
-            const float fuzz = sustainFuzz[ch].processSample(boosted, env.attackEnvelope, params.fuzzLevel);
-            const float shaped = (boosted * (1.0f - params.fuzzLevel) + sub * params.subOctave + ring + fuzz) * env.decayEnvelope;
-            
-            const bool isSineMode = (params.controlMod <= 3);
+            const auto& env = envByChannel[ch];
+
+            // Signal order: Fall rate > top boost > sub octave / ring mod > fuzz > phaser
+            const float fallen = dry * env.decayEnvelope;
+
+            const float boosted = topBoost[ch].processSample (fallen, params.topBoost);
+
+            const float audibleSub = subOct[ch].processSample (boosted, !params.buzz);
+            const float subCarrier = subOct[ch].getCarrier();
+            const float growlOut = growl[ch].processSample (subCarrier, params.growl);
+
+            const float ringComponent = ringMod[ch].processSample (boosted, params.ringMod);
+
+            const float effectedPre = boosted + audibleSub * params.subOctave + ringComponent;
+            const float fuzzWet = sustainFuzz[ch].processSample (effectedPre, env.attackEnvelope);
+            const float effected = effectedPre + fuzzWet * params.fuzzLevel;
+
             float chanModulation = modulation;
             if (isSineMode && params.growl != 1)
-                chanModulation = juce::jlimit(0.0f, 1.0f, modulation + growlOut * params.modDepth);
+                chanModulation = juce::jlimit (0.0f, 1.0f, modulation + growlOut * params.modDepth);
+
+            const float wet = phaser[ch].processSample (effected, chanModulation);
+
+            channelData[sample] = (dry + (wet - dry) * params.mix) * params.gain;
             
-            const float wet = phaser[ch].processSample (shaped, chanModulation);
-            channelData[sample] = (wet + (dry - wet) * params.mix) * params.gain;
         }
     }
 }
@@ -232,19 +261,19 @@ juce::AudioProcessorEditor* HiFlyerAudioProcessor::createEditor()
 //==============================================================================
 void HiFlyerAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
-    copyXmlToBinary(*apvts.copyState().createXml(), destData);
+    copyXmlToBinary (*apvts.copyState().createXml(), destData);
 }
 
 void HiFlyerAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    std::unique_ptr<juce::XmlElement>xml(getXmlFromBinary(data, sizeInBytes));
-    if (xml.get() != nullptr && xml->hasTagName(apvts.state.getType())) {
-        apvts.replaceState(juce::ValueTree::fromXml(*xml));
-    }
+    std::unique_ptr<juce::XmlElement> xml (getXmlFromBinary (data, sizeInBytes));
+
+    if (xml != nullptr && xml->hasTagName (apvts.state.getType()))
+        apvts.replaceState (juce::ValueTree::fromXml (*xml));
 }
 
 //==============================================================================
-// This creates new instances of the plugin..
+// This creates new instances of the plugin.
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new HiFlyerAudioProcessor();

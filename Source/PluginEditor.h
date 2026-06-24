@@ -10,7 +10,6 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
-#include "Parameters.h"
 #include "UI/CustomLookAndFeel.h"
 
 //==============================================================================
@@ -27,42 +26,22 @@ public:
     void resized() override;
 
 private:
-    
-    void addSlider(const juce::String& paramID, juce::Slider::SliderStyle style, bool isSwitch, const juce::String& position, int x, int y, int width, int height)
-    {
-        auto slider = std::make_unique<juce::Slider>();
-        slider->setSliderStyle(style);
-        slider->setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
-        slider->getProperties().set("isSwitch", isSwitch);
-        slider->getProperties().set("position", position);
-        
-        auto boundsString = juce::String(x) + " " + juce::String(y) + " " + juce::String(width) + " " + juce::String(height);
-        slider->getProperties().set("originalBounds", boundsString);
-        slider->setBounds(x, y, width, height);
-        
-        addAndMakeVisible(*slider);
-        
-        sliderAttachments[paramID] = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
-            audioProcessor.apvts, paramID, *slider);
-        
-        sliders[paramID] = std::move(slider);
-    }
-    
-    void addKnob(const juce::String& paramID, juce::Slider::SliderStyle style, bool isNotched, int x, int y, int width, int height)
-    {
-        auto slider = std::make_unique<juce::Slider>();
-        slider->setSliderStyle(style);
-        slider->setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
-        slider->setBounds(x, y, width, height);
-        slider->getProperties().set("isNotched", isNotched);
-            
-        addAndMakeVisible(*slider);
-        
-        sliderAttachments[paramID] = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
-            audioProcessor.apvts, paramID, *slider);
-        
-        sliders[paramID] = std::move(slider);
-    }
+    void addSlider (const juce::String& paramID,
+                    juce::Slider::SliderStyle style,
+                    bool isSwitch,
+                    const juce::String& position,
+                    int x,
+                    int y,
+                    int width,
+                    int height);
+
+    void addKnob (const juce::String& paramID,
+                  juce::Slider::SliderStyle style,
+                  bool isNotched,
+                  int x,
+                  int y,
+                  int width,
+                  int height);
     
     HiFlyerAudioProcessor& audioProcessor;
     

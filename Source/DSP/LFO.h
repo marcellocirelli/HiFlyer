@@ -13,7 +13,7 @@
 
 class LFO
 {
-    public:
+public:
     enum class Waveform
     {
         SlowSine,
@@ -29,15 +29,13 @@ class LFO
     void prepare (const juce::dsp::ProcessSpec& spec);
     void reset();
     
-    float processSample(bool attackTrigger, bool decayTrigger, float rampAmount) noexcept;
+    float processSample (bool attackTrigger, bool decayTrigger, float rampAmount) noexcept;
     
     void setWaveform (Waveform newWaveform);
     void setSpeed (float speed) noexcept;
     void setDepth (float depth) noexcept;
     
-    private:
-    float frequencyForSpeed (float s) const noexcept;
-    
+private:
     double sampleRate = 0.0;
     
     Waveform waveform = Waveform::SlowSine;
