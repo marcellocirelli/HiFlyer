@@ -52,11 +52,11 @@ It serves as a portfolio example of modern C++ audio plugin development and obje
 -   Growl Modulation
 -   Fuzz
 -   Ring Modulator
+-   Cleanup / Refactor
 
 ## TODO:
 
 -   UI overhaul (OpenGL?)
--   Cleanup/refactoring
 
 ## Notes
 
